@@ -1603,10 +1603,60 @@ function ensureEnabledProdeTab(){
 function ensureEnabledResultTab(){
   if(!isTabEnabled(currentResultTab)) currentResultTab='A';
 }
+function isResolvedTeamName(name){
+  const s=String(name||'').trim();
+  if(!s) return false;
+  if(/^\dº Grupo [A-L]$/.test(s)) return false;
+  if(/^3º [A-L](?:\/[A-L])*$/.test(s)) return false;
+  if(/^G\. P\d+$/.test(s)) return false;
+  if(/^G\. SF[12]$/.test(s)) return false;
+  if(/^Perdedor SF[12]$/.test(s)) return false;
+  return true;
+}
+function areMatchesResolved(matchIds){
+  return matchIds.every(id=>{
+    const wt=getMatchWinnerLoser(id);
+    return isResolvedTeamName(wt.winner);
+  });
+}
+function canResolvePhase(phaseLabel){
+  if(phaseLabel==='Fase de Grupos') return true;
+  if(phaseLabel==='16avos de Final') return areAllGroupResultsLoaded();
+  if(phaseLabel==='Octavos de Final') return areMatchesResolved(Array.from({length:16},(_,i)=>'R32_'+(i+1)));
+  if(phaseLabel==='Cuartos de Final') return areMatchesResolved(Array.from({length:8},(_,i)=>'R16_'+(i+1)));
+  if(phaseLabel==='Semifinales') return areMatchesResolved(Array.from({length:4},(_,i)=>'QF_'+(i+1)));
+  if(phaseLabel==='Tercer Puesto'||phaseLabel==='Final') return areMatchesResolved(['SF_1','SF_2']);
+  return false;
+}
+function clearPhaseTeamsByPhase(phaseLabel){
+  state.phaseTeams=state.phaseTeams||{};
+  MATCHES.filter(m=>m.phase===phaseLabel).forEach(m=>{ delete state.phaseTeams[m.id]; });
+}
+function clearInvalidKnockoutPhaseTeams(){
+  state.phaseTeams=state.phaseTeams||{};
+  ['16avos de Final','Octavos de Final','Cuartos de Final','Semifinales','Tercer Puesto','Final'].forEach(ph=>{
+    if(!canResolvePhase(ph)) clearPhaseTeamsByPhase(ph);
+  });
+}
+function normalizeTournamentPhasePrerequisites(){
+  const cur=state.tournamentPhase||'groups';
+  const checks={
+    round32:'16avos de Final',
+    round16:'Octavos de Final',
+    quarterfinals:'Cuartos de Final',
+    semifinals:'Semifinales',
+    final:'Final'
+  };
+  if(checks[cur] && !canResolvePhase(checks[cur])) state.tournamentPhase='groups';
+}
 function getMatchDisplay(m){
+  clearInvalidKnockoutPhaseTeams();
+  if(m.group==='—' && !canResolvePhase(m.phase)) return m;
   const override=state.phaseTeams&&state.phaseTeams[m.id];
   if(!override) return m;
-  return {...m,home:override.home||m.home,away:override.away||m.away};
+  const home=isResolvedTeamName(override.home)?override.home:m.home;
+  const away=isResolvedTeamName(override.away)?override.away:m.away;
+  return {...m,home,away};
 }
 function getMatchesForTabDisplay(tab){
   return getMatchesForTab(tab).map(getMatchDisplay);
@@ -1672,14 +1722,12 @@ function resolveSeed(seed, groupStandings, thirdsRanked, usedThirdGroups){
 }
 function completeRound32Teams(){
   state.phaseTeams=state.phaseTeams||{};
-
-  // 16avos solo se completan cuando TODOS los grupos tienen resultados oficiales.
-  // Si falta aunque sea un grupo, se borran posibles cruces viejos para evitar equipos precargados.
+  // 16avos NO se completan hasta que estén cargados TODOS los resultados oficiales de grupos.
+  // Si falta aunque sea un grupo, se borran cruces viejos que hayan quedado guardados en Supabase/localStorage.
   if(!areAllGroupResultsLoaded()){
-    MATCHES.filter(m=>m.phase==='16avos de Final').forEach(m=>{ delete state.phaseTeams[m.id]; });
+    clearPhaseTeamsByPhase('16avos de Final');
     return false;
   }
-
   const groupStandings={}; GROUP_KEYS.forEach(g=>groupStandings[g]=calculateGroupStandings(g));
   const thirdsRanked=getThirdsRanked().slice(0,8);
   const usedThirdGroups=new Set();
@@ -1693,25 +1741,22 @@ function completeRound32Teams(){
 }
 function refreshKnockoutTeamsFromResults(){
   state.phaseTeams=state.phaseTeams||{};
-
-  // Siempre recalcula 16avos al guardar resultados de grupos,
-  // aunque la fase pública siga en "Fase de Grupos".
-  // Así, si el Grupo A ya está completo, se reemplazan 1º/2º Grupo A
-  // sin esperar a completar los otros grupos.
   completeRound32Teams();
 
-  if(['round16','quarterfinals','semifinals','final'].includes(state.tournamentPhase||'groups')){
-    completeKnockoutTeams('round16');
-  }
-  if(['quarterfinals','semifinals','final'].includes(state.tournamentPhase||'groups')){
-    completeKnockoutTeams('quarterfinals');
-  }
-  if(['semifinals','final'].includes(state.tournamentPhase||'groups')){
-    completeKnockoutTeams('semifinals');
-  }
-  if((state.tournamentPhase||'groups')==='final'){
-    completeKnockoutTeams('final');
-  }
+  if(canResolvePhase('Octavos de Final')) completeKnockoutTeams('round16');
+  else clearPhaseTeamsByPhase('Octavos de Final');
+
+  if(canResolvePhase('Cuartos de Final')) completeKnockoutTeams('quarterfinals');
+  else clearPhaseTeamsByPhase('Cuartos de Final');
+
+  if(canResolvePhase('Semifinales')) completeKnockoutTeams('semifinals');
+  else clearPhaseTeamsByPhase('Semifinales');
+
+  if(canResolvePhase('Final')) completeKnockoutTeams('final');
+  else { clearPhaseTeamsByPhase('Tercer Puesto'); clearPhaseTeamsByPhase('Final'); }
+
+  clearInvalidKnockoutPhaseTeams();
+  normalizeTournamentPhasePrerequisites();
 }
 function matchIdFromNumber(n){
   n=parseInt(n,10);
@@ -1744,41 +1789,40 @@ function resolveKnockoutSeed(label){
   if(m){return getMatchWinnerLoser('SF_'+m[1]).loser||s;}
   return s;
 }
-function isPendingKnockoutSeed(value){
-  return /^(G\. P\d+|G\. SF[12]|Perdedor SF[12])$/.test(String(value||''));
-}
 function completeKnockoutTeams(phase){
   state.phaseTeams=state.phaseTeams||{};
   const phases={round16:'Octavos de Final',quarterfinals:'Cuartos de Final',semifinals:'Semifinales',final:null};
-  const applySafeTeams=(m)=>{
-    const home=resolveKnockoutSeed(m.home);
-    const away=resolveKnockoutSeed(m.away);
-
-    // Si todavía falta el ganador/perdedor de un cruce anterior, no dejamos equipos viejos.
-    // Así Octavos, Cuartos, Semis y Final nunca quedan armados con datos falsos o arrastrados.
-    if(isPendingKnockoutSeed(home)||isPendingKnockoutSeed(away)){
-      state.phaseTeams[m.id]={home,away};
-      return;
-    }
-
-    state.phaseTeams[m.id]={home,away};
-  };
-
   if(phase==='final'){
-    MATCHES.filter(m=>['Tercer Puesto','Final'].includes(m.phase)).forEach(applySafeTeams);
+    MATCHES.filter(m=>['Tercer Puesto','Final'].includes(m.phase)).forEach(m=>{
+      state.phaseTeams[m.id]={home:resolveKnockoutSeed(m.home),away:resolveKnockoutSeed(m.away)};
+    });
     return;
   }
   const target=phases[phase];
-  MATCHES.filter(m=>m.phase===target).forEach(applySafeTeams);
+  MATCHES.filter(m=>m.phase===target).forEach(m=>{
+    state.phaseTeams[m.id]={home:resolveKnockoutSeed(m.home),away:resolveKnockoutSeed(m.away)};
+  });
 }
 async function setTournamentPhase(phase){
   if(!state.adminSession){showToast('Sin permisos','error');return;}
   if(!TOURNAMENT_PHASES.includes(phase)) return;
+  const req={round32:'16avos de Final',round16:'Octavos de Final',quarterfinals:'Cuartos de Final',semifinals:'Semifinales',final:'Final'};
+  if(req[phase] && !canResolvePhase(req[phase])){
+    const msg={
+      round32:'Faltan resultados de grupos para armar 16avos',
+      round16:'Faltan ganadores de 16avos para armar octavos',
+      quarterfinals:'Faltan ganadores de octavos para armar cuartos',
+      semifinals:'Faltan ganadores de cuartos para armar semifinales',
+      final:'Faltan ganadores de semifinales para armar final'
+    };
+    showToast(msg[phase]||'Faltan resultados previos','error');
+    refreshKnockoutTeamsFromResults();
+    await saveToCloud();
+    renderCurrentPage();
+    return;
+  }
   state.tournamentPhase=phase;
   refreshKnockoutTeamsFromResults();
-  if(phase==='round32' && !areAllGroupResultsLoaded()){
-    showToast('Faltan resultados de grupos para armar 16avos','error');
-  }
   ensureEnabledProdeTab(); ensureEnabledResultTab();
   await saveToCloud();
   renderCurrentPage();
@@ -2338,6 +2382,10 @@ function escAttr(s){return escHtml(s);}
   setSyncStatus('busy','Cargando...');
   const loaded=await loadFromCloud();
   if(!loaded) setSyncStatus('ok','Listo (nuevo)');
+  const beforeCleanup=JSON.stringify({phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
+  refreshKnockoutTeamsFromResults();
+  const afterCleanup=JSON.stringify({phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
+  if(loaded && beforeCleanup!==afterCleanup) await saveToCloud();
   restorePlayerSession();
   if(currentPlayerId) currentHistTab=currentPlayerId;
   if(needsAccessCodeMigration) await saveToCloud();
@@ -2345,6 +2393,7 @@ function escAttr(s){return escHtml(s);}
   setInterval(async()=>{
     const old=JSON.stringify({players:state.players,predictions:state.predictions,exactScores:state.exactScores,champions:state.champions,results:state.results,phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
     await loadFromCloud();
+    refreshKnockoutTeamsFromResults();
     const nuevo=JSON.stringify({players:state.players,predictions:state.predictions,exactScores:state.exactScores,champions:state.champions,results:state.results,phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
     if(old!==nuevo) renderCurrentPage();
   },30000);
