@@ -1142,14 +1142,64 @@ let syncStatus = 'idle';
 let needsAccessCodeMigration = false;
 const PLAYER_SESSION_KEY = 'prode2026-active-player';
 
-/* ── CLOUD SYNC ── */
-async function cloudGet(key, shared=true){
-  try{const r=await window.storage.get(key,shared);return r?JSON.parse(r.value):null;}
-  catch(e){return null;}
+/* ── SUPABASE CLOUD SYNC ── */
+const SUPABASE_URL = 'https://jwxftzwheojkoxttcebn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_nW-YZlTWcqkKHV6F6oCbIg_BHroMbLg';
+const SUPABASE_STATE_TABLE = 'app_state';
+
+function localStorageKey(key){
+  return 'prode2026-' + key;
 }
+
+async function supabaseRequest(path, options={}){
+  const headers = {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+    'Content-Type': 'application/json',
+    ...(options.headers || {})
+  };
+  const res = await fetch(SUPABASE_URL + path, {...options, headers});
+  if(!res.ok){
+    const txt = await res.text().catch(()=>'');
+    throw new Error('Supabase error ' + res.status + ': ' + txt);
+  }
+  if(res.status === 204) return null;
+  return await res.json().catch(()=>null);
+}
+
+async function cloudGet(key, shared=true){
+  try{
+    const rows = await supabaseRequest('/rest/v1/' + SUPABASE_STATE_TABLE + '?key=eq.' + encodeURIComponent(key) + '&select=value&limit=1', {method:'GET'});
+    if(Array.isArray(rows) && rows.length && rows[0].value) return rows[0].value;
+  }catch(e){
+    console.warn('No se pudo leer Supabase. Uso respaldo local.', e);
+  }
+  try{
+    const local = localStorage.getItem(localStorageKey(key));
+    return local ? JSON.parse(local) : null;
+  }catch(e){
+    return null;
+  }
+}
+
 async function cloudSet(key, val, shared=true){
-  try{await window.storage.set(key,JSON.stringify(val),shared);return true;}
-  catch(e){return false;}
+  try{
+    await supabaseRequest('/rest/v1/' + SUPABASE_STATE_TABLE, {
+      method:'POST',
+      headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({key, value:val, updated_at:new Date().toISOString()})
+    });
+    try{localStorage.setItem(localStorageKey(key), JSON.stringify(val));}catch(_e){}
+    return true;
+  }catch(e){
+    console.error('No se pudo guardar en Supabase.', e);
+    try{
+      localStorage.setItem(localStorageKey(key), JSON.stringify(val));
+      return false;
+    }catch(_e){
+      return false;
+    }
+  }
 }
 
 function setSyncStatus(s,label){
