@@ -1671,17 +1671,25 @@ function resolveSeed(seed, groupStandings, thirdsRanked, usedThirdGroups){
   return s;
 }
 function completeRound32Teams(){
-  const groupStandings={}; GROUP_KEYS.forEach(g=>groupStandings[g]=calculateGroupStandings(g));
-  const thirdsRanked=areAllGroupResultsLoaded()?getThirdsRanked().slice(0,8):[];
-  const usedThirdGroups=new Set();
   state.phaseTeams=state.phaseTeams||{};
+
+  // 16avos solo se completan cuando TODOS los grupos tienen resultados oficiales.
+  // Si falta aunque sea un grupo, se borran posibles cruces viejos para evitar equipos precargados.
+  if(!areAllGroupResultsLoaded()){
+    MATCHES.filter(m=>m.phase==='16avos de Final').forEach(m=>{ delete state.phaseTeams[m.id]; });
+    return false;
+  }
+
+  const groupStandings={}; GROUP_KEYS.forEach(g=>groupStandings[g]=calculateGroupStandings(g));
+  const thirdsRanked=getThirdsRanked().slice(0,8);
+  const usedThirdGroups=new Set();
   MATCHES.filter(m=>m.phase==='16avos de Final').forEach(m=>{
     state.phaseTeams[m.id]={
       home:resolveSeed(m.home,groupStandings,thirdsRanked,usedThirdGroups),
       away:resolveSeed(m.away,groupStandings,thirdsRanked,usedThirdGroups)
     };
   });
-  return areAllGroupResultsLoaded();
+  return true;
 }
 function refreshKnockoutTeamsFromResults(){
   state.phaseTeams=state.phaseTeams||{};
@@ -1736,19 +1744,32 @@ function resolveKnockoutSeed(label){
   if(m){return getMatchWinnerLoser('SF_'+m[1]).loser||s;}
   return s;
 }
+function isPendingKnockoutSeed(value){
+  return /^(G\. P\d+|G\. SF[12]|Perdedor SF[12])$/.test(String(value||''));
+}
 function completeKnockoutTeams(phase){
   state.phaseTeams=state.phaseTeams||{};
   const phases={round16:'Octavos de Final',quarterfinals:'Cuartos de Final',semifinals:'Semifinales',final:null};
+  const applySafeTeams=(m)=>{
+    const home=resolveKnockoutSeed(m.home);
+    const away=resolveKnockoutSeed(m.away);
+
+    // Si todavía falta el ganador/perdedor de un cruce anterior, no dejamos equipos viejos.
+    // Así Octavos, Cuartos, Semis y Final nunca quedan armados con datos falsos o arrastrados.
+    if(isPendingKnockoutSeed(home)||isPendingKnockoutSeed(away)){
+      state.phaseTeams[m.id]={home,away};
+      return;
+    }
+
+    state.phaseTeams[m.id]={home,away};
+  };
+
   if(phase==='final'){
-    MATCHES.filter(m=>['Tercer Puesto','Final'].includes(m.phase)).forEach(m=>{
-      state.phaseTeams[m.id]={home:resolveKnockoutSeed(m.home),away:resolveKnockoutSeed(m.away)};
-    });
+    MATCHES.filter(m=>['Tercer Puesto','Final'].includes(m.phase)).forEach(applySafeTeams);
     return;
   }
   const target=phases[phase];
-  MATCHES.filter(m=>m.phase===target).forEach(m=>{
-    state.phaseTeams[m.id]={home:resolveKnockoutSeed(m.home),away:resolveKnockoutSeed(m.away)};
-  });
+  MATCHES.filter(m=>m.phase===target).forEach(applySafeTeams);
 }
 async function setTournamentPhase(phase){
   if(!state.adminSession){showToast('Sin permisos','error');return;}
