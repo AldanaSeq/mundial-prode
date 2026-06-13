@@ -1300,6 +1300,21 @@ async function saveToCloud(){
   return ok;
 }
 
+async function manualSavePredictions(){
+  if(!currentPlayerId){showToast('Ingresá con tu código antes de guardar','error');return;}
+  const btn=document.getElementById('manualSaveBtn');
+  const original=btn ? btn.textContent : '';
+  if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  const ok=await saveToCloud();
+  if(ok){
+    showToast('Pronóstico guardado correctamente','success');
+    if(btn){btn.textContent='✅ Guardado';setTimeout(()=>{btn.textContent=original||'💾 Guardar pronóstico';btn.disabled=false;},1800);}
+  }else{
+    showToast('No se pudo guardar en Supabase. Revisá la conexión.','error');
+    if(btn){btn.textContent=original||'💾 Guardar pronóstico';btn.disabled=false;}
+  }
+}
+
 async function forceSyncFromCloud(){
   await loadFromCloud();
   renderCurrentPage();
@@ -1312,6 +1327,19 @@ function parseScore(r){
   const h=parseInt(r.home,10),a=parseInt(r.away,10);
   if(isNaN(h)||isNaN(a)) return null;
   return {h,a};
+}
+
+function isOfficialResult(matchId){
+  const r=state.results && state.results[matchId];
+  return !!(r && r.official === true && parseScore(r));
+}
+
+function getOfficialScore(matchId){
+  return isOfficialResult(matchId) ? parseScore(state.results[matchId]) : null;
+}
+
+function getRawScore(matchId){
+  return parseScore(state.results && state.results[matchId]);
 }
 
 function getMatchKickoffDate(m){
@@ -1354,6 +1382,7 @@ function lockStatusHtml(m){
 }
 function getResultOutcome(matchId){
   const r=state.results[matchId];
+  if(!r || r.official !== true) return null;
   const sc=parseScore(r);
   if(!sc) return null;
   if(sc.h>sc.a) return 'home';
@@ -1377,7 +1406,7 @@ function calcPlayerStats(pid){
       hits++;
       pts+=3;
       const ex=exacts[mid];
-      const sc=parseScore(state.results[mid]);
+      const sc=getOfficialScore(mid);
       if(ex&&sc&&parseInt(ex.home,10)===sc.h&&parseInt(ex.away,10)===sc.a){
         exactHits++;
         pts+=2;
@@ -1564,7 +1593,7 @@ function renderPlayerChips(){
   if(session){
     session.style.display='flex';
     session.innerHTML=`<div>Sesión iniciada como <strong>${escHtml(active.name)}</strong><br><span class="locked-note">Solo este participante puede editar sus pronósticos en este navegador.</span></div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="code-box">${escHtml(active.accessCode)}</span><button class="btn-ghost" onclick="copyAccessCode('${escAttr(active.accessCode)}')">Copiar código</button><button class="btn-ghost" onclick="logoutPlayer()">Salir</button></div>`;
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="code-box">${escHtml(active.accessCode)}</span><button class="btn-primary" id="manualSaveBtn" onclick="manualSavePredictions()">💾 Guardar pronóstico</button><button class="btn-ghost" onclick="copyAccessCode('${escAttr(active.accessCode)}')">Copiar código</button><button class="btn-ghost" onclick="logoutPlayer()">Salir</button></div>`;
   }
   document.getElementById('statsRow').style.display='flex';
   document.getElementById('stPred').textContent=st.totalPreds;
@@ -1676,7 +1705,7 @@ function calculateGroupStandings(groupKey){
   const stats={};
   teams.forEach(name=>stats[name]={name,group:groupKey,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0,dg:0,pts:0});
   MATCHES.filter(m=>m.group===groupKey).forEach(m=>{
-    const sc=parseScore(state.results[m.id]);
+    const sc=getOfficialScore(m.id);
     if(!sc||!stats[m.home]||!stats[m.away]) return;
     const h=stats[m.home], a=stats[m.away];
     h.pj++; a.pj++; h.gf+=sc.h; h.gc+=sc.a; a.gf+=sc.a; a.gc+=sc.h; h.dg=h.gf-h.gc; a.dg=a.gf-a.gc;
@@ -1692,7 +1721,7 @@ function getThirdsRanked(){
 function areGroupResultsLoaded(groupKey){
   return MATCHES
     .filter(m=>m.phase==='Fase de Grupos' && m.group===groupKey)
-    .every(m=>!!parseScore(state.results[m.id]));
+    .every(m=>isOfficialResult(m.id));
 }
 function areAllGroupResultsLoaded(){
   return GROUP_KEYS.every(g=>areGroupResultsLoaded(g));
@@ -1770,7 +1799,7 @@ function matchIdFromNumber(n){
 function getMatchWinnerLoser(matchId){
   const m=MATCH_MAP[matchId];
   const r=state.results[matchId];
-  const sc=parseScore(r);
+  const sc=getOfficialScore(matchId);
   if(!m||!sc) return {winner:null,loser:null};
   const dm=getMatchDisplay(m);
   if(sc.h>sc.a) return {winner:dm.home,loser:dm.away};
@@ -1910,8 +1939,8 @@ function renderMatchCards(){
 function buildMatchCard(m,pred,exact,isKO){
   const ht=getTeam(m.home),at=getTeam(m.away);
   const r=state.results[m.id];
-  const sc=parseScore(r);
-  const outcome=sc?(sc.h>sc.a?'home':sc.a>sc.h?'away':'draw'):null;
+  const sc=getOfficialScore(m.id);
+  const outcome=getResultOutcome(m.id);
   const isCorrect=outcome&&pred&&pred===outcome;
   const isExact=isCorrect&&exact&&sc&&parseInt(exact.home,10)===sc.h&&parseInt(exact.away,10)===sc.a;
   const isWrong=outcome&&pred&&pred!==outcome;
@@ -2058,7 +2087,7 @@ function renderHistorialContent(){
   const pid=currentHistTab;
   const preds=state.predictions[pid]||{};
   const exacts=state.exactScores[pid]||{};
-  const played=MATCHES.filter(m=>state.results[m.id]&&parseScore(state.results[m.id]));
+  const played=MATCHES.filter(m=>isOfficialResult(m.id));
   if(!played.length){
     el.innerHTML='<div class="empty"><div class="icon">⏳</div>Aún no hay partidos jugados</div>';
     return;
@@ -2069,8 +2098,8 @@ function renderHistorialContent(){
     if(!ms.length) return;
     html+=`<div class="phase-label">${phase}</div>`;
     ms.forEach(m=>{
-      const sc=parseScore(state.results[m.id]);
-      const outcome=sc.h>sc.a?'home':sc.a>sc.h?'away':'draw';
+      const sc=getOfficialScore(m.id);
+      const outcome=getResultOutcome(m.id);
       const pred=preds[m.id];
       const ex=exacts[m.id];
       const correct=pred&&pred===outcome;
@@ -2114,7 +2143,7 @@ function renderFixture(){
     html+=`<div class="phase-label">${phase}</div><div class="fixture-list">`;
     ms.forEach(m=>{
       const r=state.results[m.id];
-      const sc=parseScore(r);
+      const sc=getOfficialScore(m.id);
       const ht=getTeam(m.home),at=getTeam(m.away);
       html+=`<div class="fix-row${sc?' played':''}">
         <div class="fix-date">${m.date}<br><span style="color:var(--gold);font-size:9px">${m.time}hs</span></div>
@@ -2147,7 +2176,7 @@ function computeGroupStandings(letter){
   const stats={};
   names.forEach(n=>{stats[n]={name:n,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0,dg:0,pts:0};});
   MATCHES.filter(m=>m.group===letter&&m.phase==='Fase de Grupos').forEach(m=>{
-    const sc=parseScore(state.results[m.id]);
+    const sc=getOfficialScore(m.id);
     if(!sc) return;
     const{h,a}=sc;
     const hs=stats[m.home],as_=stats[m.away];
@@ -2327,7 +2356,7 @@ async function saveResult(matchId){
   const h=parseInt(hv,10),a=parseInt(av,10);
   if(isNaN(h)||isNaN(a)||h<0||a<0){showToast('Marcadores inválidos','error');return;}
   const m=MATCH_MAP[matchId];
-  const resultData={home:String(h),away:String(a)};
+  const resultData={home:String(h),away:String(a),official:true};
   if(m && m.group==='—' && h===a){
     const penEl=document.getElementById('pen-'+matchId);
     const penWinner=penEl ? penEl.value : '';
