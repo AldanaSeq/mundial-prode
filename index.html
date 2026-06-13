@@ -1054,6 +1054,7 @@ nav{
       <button class="btn-ghost" onclick="adminLogout()">Cerrar sesión</button>
     </div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Solo el admin puede cargar resultados. Los puntos se recalculan automáticamente y se sincronizan en la nube.</p>
+    <div id="adminPlayersMount"></div>
     <div class="group-tabs" id="resultGroupTabs"></div>
     <div class="matches-grid" id="resultGrid"></div>
   </div>
@@ -2007,9 +2008,9 @@ function renderMatchCards(){
 }
 function buildMatchCard(m,pred,exact,isKO){
   const ht=getTeam(m.home),at=getTeam(m.away);
-  const r=state.results[m.id];
-  const sc=getOfficialScore(m.id);
-  const outcome=getResultOutcome(m.id);
+  const official=isOfficialResult(m.id);
+  const sc=official?getOfficialScore(m.id):null;
+  const outcome=official?getResultOutcome(m.id):null;
   const isCorrect=outcome&&pred&&pred===outcome;
   const isExact=isCorrect&&exact&&sc&&parseInt(exact.home,10)===sc.h&&parseInt(exact.away,10)===sc.a;
   const isWrong=outcome&&pred&&pred!==outcome;
@@ -2309,12 +2310,14 @@ function renderResultados(){
         </select>`;
       panel.insertBefore(champDiv,panel.children[2]);
     }
-    let playersBox=document.getElementById('adminPlayersBox');
-    if(!playersBox){
-      const tabs=document.getElementById('resultGroupTabs');
-      if(tabs) tabs.insertAdjacentHTML('beforebegin', renderAdminPlayersBox());
+    const playersMount=document.getElementById('adminPlayersMount');
+    if(playersMount){
+      playersMount.innerHTML=renderAdminPlayersBox();
     } else {
-      playersBox.outerHTML=renderAdminPlayersBox();
+      let playersBox=document.getElementById('adminPlayersBox');
+      const tabs=document.getElementById('resultGroupTabs');
+      if(playersBox) playersBox.outerHTML=renderAdminPlayersBox();
+      else if(tabs) tabs.insertAdjacentHTML('beforebegin', renderAdminPlayersBox());
     }
     renderResultGroupTabs();
     renderResultCards();
@@ -2325,6 +2328,8 @@ function renderResultados(){
     if(old) old.remove();
     const phaseOld=document.getElementById('phaseAdminBox');
     if(phaseOld) phaseOld.remove();
+    const playersMount=document.getElementById('adminPlayersMount');
+    if(playersMount) playersMount.innerHTML='';
     const playersOld=document.getElementById('adminPlayersBox');
     if(playersOld) playersOld.remove();
     wrap.innerHTML=`<div class="admin-gate">
@@ -2339,14 +2344,14 @@ function renderAdminPlayersBox(){
   const players=[...state.players].sort((a,b)=>a.name.localeCompare(b.name));
   if(!players.length){
     return `<div class="admin-players-box" id="adminPlayersBox">
-      <div class="admin-players-head"><div class="admin-players-title">👤 Jugadores registrados</div><button class="admin-export-btn" onclick="exportRankingExcel()">📥 Exportar Excel</button></div>
+      <div class="admin-players-head"><div class="admin-players-title">👤 Jugadores registrados</div><button class="admin-export-btn" onclick="exportRankingExcel()">📥 Exportar Excel/CSV</button></div>
       <div style="font-size:12px;color:var(--muted);">Todavía no hay jugadores para administrar.</div>
     </div>`;
   }
   return `<div class="admin-players-box" id="adminPlayersBox">
     <div class="admin-players-head">
       <div class="admin-players-title">👤 Jugadores registrados (${players.length})</div>
-      <button class="admin-export-btn" onclick="exportRankingExcel()">📥 Exportar Excel</button>
+      <button class="admin-export-btn" onclick="exportRankingExcel()">📥 Exportar Excel/CSV</button>
       <div style="font-size:11px;color:var(--muted);">Eliminar borra usuario, pronósticos y campeón elegido.</div>
     </div>
     <div class="admin-players-list">
