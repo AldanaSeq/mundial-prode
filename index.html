@@ -1685,13 +1685,10 @@ function updateHeaderScore(){
 
 /* ── PROGRESSIVE PHASES ── */
 function getEnabledTabs(){
-  // La administradora puede ver y cargar todas las fases en cualquier momento.
-  // Los participantes solo ven las fases habilitadas oficialmente.
-  if(state.adminSession) return ALL_TABS;
-  return PHASE_TAB_LIMITS[state.tournamentPhase||'groups']||GROUP_KEYS;
+  return ALL_TABS;
 }
 function getParticipantEnabledTabs(){
-  return PHASE_TAB_LIMITS[state.tournamentPhase||'groups']||GROUP_KEYS;
+  return ALL_TABS;
 }
 function isTabEnabled(tab){
   return getEnabledTabs().includes(tab);
