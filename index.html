@@ -858,6 +858,75 @@ nav{
 .match-card.locked-pred{opacity:.78;}
 .match-card.locked-pred .pred-btn,.match-card.locked-pred .exact-input{cursor:not-allowed;filter:grayscale(.25);}
 
+/* Administrar jugadores */
+.admin-players-box{
+  margin-bottom:16px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 16px;
+}
+.admin-players-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.admin-players-title{
+  font-family:'Montserrat','Poppins',sans-serif;
+  font-size:12px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-weight:800;
+}
+.admin-players-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:8px;
+}
+.admin-player-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  background:rgba(255,255,255,.62);
+  border:1px solid rgba(168,216,255,.42);
+  border-radius:12px;
+  padding:8px 10px;
+}
+.admin-player-info{min-width:0;}
+.admin-player-name{font-weight:800;color:var(--arg-blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.admin-player-code{font-family:'Roboto Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.admin-delete-btn{
+  border:1px solid rgba(228,93,115,.45);
+  background:rgba(228,93,115,.10);
+  color:#C9495D;
+  border-radius:999px;
+  padding:6px 9px;
+  font-family:'Montserrat','Poppins',sans-serif;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.admin-delete-btn:hover{background:rgba(228,93,115,.18);}
+.admin-export-btn{
+  border:1px solid rgba(47,174,134,.45);
+  background:rgba(47,174,134,.12);
+  color:#21896A;
+  border-radius:999px;
+  padding:7px 12px;
+  font-family:'Montserrat','Poppins',sans-serif;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.admin-export-btn:hover{background:rgba(47,174,134,.20);}
+
 </style>
 </head>
 <body>
@@ -2240,6 +2309,13 @@ function renderResultados(){
         </select>`;
       panel.insertBefore(champDiv,panel.children[2]);
     }
+    let playersBox=document.getElementById('adminPlayersBox');
+    if(!playersBox){
+      const tabs=document.getElementById('resultGroupTabs');
+      if(tabs) tabs.insertAdjacentHTML('beforebegin', renderAdminPlayersBox());
+    } else {
+      playersBox.outerHTML=renderAdminPlayersBox();
+    }
     renderResultGroupTabs();
     renderResultCards();
   } else {
@@ -2249,6 +2325,8 @@ function renderResultados(){
     if(old) old.remove();
     const phaseOld=document.getElementById('phaseAdminBox');
     if(phaseOld) phaseOld.remove();
+    const playersOld=document.getElementById('adminPlayersBox');
+    if(playersOld) playersOld.remove();
     wrap.innerHTML=`<div class="admin-gate">
       <h2>Zona Administrador</h2>
       <p>Ingresá la contraseña para cargar resultados</p>
@@ -2257,6 +2335,99 @@ function renderResultados(){
     </div>`;
   }
 }
+function renderAdminPlayersBox(){
+  const players=[...state.players].sort((a,b)=>a.name.localeCompare(b.name));
+  if(!players.length){
+    return `<div class="admin-players-box" id="adminPlayersBox">
+      <div class="admin-players-head"><div class="admin-players-title">👤 Jugadores registrados</div><button class="admin-export-btn" onclick="exportRankingExcel()">📥 Exportar Excel</button></div>
+      <div style="font-size:12px;color:var(--muted);">Todavía no hay jugadores para administrar.</div>
+    </div>`;
+  }
+  return `<div class="admin-players-box" id="adminPlayersBox">
+    <div class="admin-players-head">
+      <div class="admin-players-title">👤 Jugadores registrados (${players.length})</div>
+      <button class="admin-export-btn" onclick="exportRankingExcel()">📥 Exportar Excel</button>
+      <div style="font-size:11px;color:var(--muted);">Eliminar borra usuario, pronósticos y campeón elegido.</div>
+    </div>
+    <div class="admin-players-list">
+      ${players.map(p=>`<div class="admin-player-row">
+        <div class="admin-player-info">
+          <div class="admin-player-name" title="${escAttr(p.name)}">${escHtml(p.name)}</div>
+          <div class="admin-player-code">Código: ${escHtml(p.accessCode||'—')}</div>
+        </div>
+        <button class="admin-delete-btn" onclick="deletePlayerAdmin('${escAttr(p.id)}')">🗑 Eliminar</button>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+
+function csvCell(value){
+  const v = value === null || value === undefined ? '' : String(value);
+  return '"' + v.replace(/"/g,'""') + '"';
+}
+function downloadCSV(filename, rows){
+  const csv = '\ufeff' + rows.map(r=>r.map(csvCell).join(';')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function exportRankingExcel(){
+  if(!state.adminSession){showToast('Solo el admin puede exportar','error');return;}
+  const ranked = state.players
+    .map(p=>({...p,...calcPlayerStats(p.id),champ:state.champions[p.id]||''}))
+    .sort((a,b)=>b.pts-a.pts||b.hits-a.hits||b.exactHits-a.exactHits||b.pct-a.pct||a.name.localeCompare(b.name));
+  const rows = [[
+    'Posición','Jugador','Código','Campeón elegido','Predicciones cargadas','Aciertos','Marcadores exactos','Efectividad %','Puntos'
+  ]];
+  ranked.forEach((p,i)=>rows.push([
+    i+1,
+    p.name,
+    p.accessCode||'',
+    p.champ||'',
+    p.totalPreds,
+    p.hits,
+    p.exactHits,
+    p.pct,
+    p.pts
+  ]));
+  if(rows.length===1) rows.push(['Sin jugadores','','','','','','','','']);
+  const today = new Date().toISOString().slice(0,10);
+  downloadCSV(`prode-mundial-ranking-${today}.csv`, rows);
+  showToast('Archivo Excel/CSV descargado','success');
+}
+
+async function deletePlayerAdmin(playerId){
+  if(!state.adminSession){showToast('Sin permisos','error');return;}
+  const player=state.players.find(p=>p.id===playerId);
+  if(!player){showToast('Jugador no encontrado','error');return;}
+  const ok=confirm(`¿Eliminar al jugador "${player.name}"?\n\nSe borrarán también sus pronósticos, marcador exacto y campeón elegido.`);
+  if(!ok) return;
+  state.players=state.players.filter(p=>p.id!==playerId);
+  if(state.predictions) delete state.predictions[playerId];
+  if(state.exactScores) delete state.exactScores[playerId];
+  if(state.champions) delete state.champions[playerId];
+  if(currentPlayerId===playerId){
+    currentPlayerId=null;
+    currentHistTab=null;
+    try{localStorage.removeItem(PLAYER_SESSION_KEY);}catch(_e){}
+  }
+  await saveToCloud();
+  renderResultados();
+  renderPlayerChips();
+  populateChampionSelect();
+  updateHeaderScore();
+  if(activePage==='tabla') renderLeaderboard();
+  if(activePage==='historial') renderHistorial();
+  showToast(`Jugador ${player.name} eliminado`,'success');
+}
+
 async function saveChampionResult(val){
   if(val) state.results['champion']=val;
   else    delete state.results['champion'];
