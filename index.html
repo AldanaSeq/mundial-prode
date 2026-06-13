@@ -927,6 +927,62 @@ nav{
 }
 .admin-export-btn:hover{background:rgba(47,174,134,.20);}
 
+.promo-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);
+  gap:22px;
+  align-items:stretch;
+  margin-bottom:18px;
+}
+.promo-copy,.promo-visual,.promo-panel{
+  background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(238,248,255,.72));
+  border:1px solid rgba(168,216,255,.48);
+  border-radius:24px;
+  box-shadow:var(--shadow-soft);
+  backdrop-filter:blur(16px) saturate(1.08);
+}
+.promo-copy{padding:30px;display:flex;flex-direction:column;justify-content:center;min-height:330px;}
+.promo-kicker{font-family:'Montserrat','Poppins',sans-serif;font-size:12px;font-weight:800;color:#A57D18;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.promo-title{font-family:'Montserrat','Poppins',sans-serif;font-size:clamp(34px,5vw,62px);line-height:.98;color:var(--arg-blue);font-weight:900;margin-bottom:16px;}
+.promo-title span{color:#317DBA;}
+.promo-text{font-size:16px;line-height:1.65;color:var(--muted);max-width:680px;margin-bottom:22px;}
+.promo-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.promo-visual{padding:22px;display:grid;gap:14px;align-content:space-between;overflow:hidden;position:relative;}
+.promo-visual::after{content:'';position:absolute;inset:auto -80px -100px auto;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.2),transparent 70%);}
+.promo-ball{height:168px;border-radius:22px;background:linear-gradient(135deg,#A8D8FF,#FFFFFF 52%,#E6C55A);display:grid;place-items:center;font-size:78px;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 18px 34px rgba(30,58,95,.12);}
+.promo-countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:relative;z-index:1;}
+.count-box{background:rgba(255,255,255,.76);border:1px solid rgba(168,216,255,.5);border-radius:16px;padding:10px 6px;text-align:center;}
+.count-box strong{display:block;font-family:'Montserrat',sans-serif;color:var(--arg-blue);font-size:24px;line-height:1;}
+.count-box span{font-size:10px;color:#6B88A3;text-transform:uppercase;font-weight:800;}
+.promo-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.promo-stat{background:rgba(255,255,255,.82);border:1px solid rgba(168,216,255,.48);border-radius:18px;padding:15px;text-align:center;box-shadow:var(--shadow-soft);}
+.promo-stat strong{display:block;font-family:'Montserrat',sans-serif;font-size:28px;color:var(--arg-blue);}
+.promo-stat span{font-size:12px;color:var(--muted);font-weight:700;}
+.promo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.promo-panel{padding:18px;}
+.promo-step{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:900;color:#A57D18;margin-bottom:8px;}
+.promo-panel h3{font-family:'Montserrat',sans-serif;color:var(--arg-blue);font-size:17px;margin-bottom:8px;}
+.promo-panel p,.promo-panel li{font-size:13px;line-height:1.55;color:var(--muted);}
+.promo-scoring,.promo-faq{margin-bottom:18px;}
+.promo-scoring table{width:100%;border-collapse:collapse;margin-top:10px;overflow:hidden;border-radius:16px;}
+.promo-scoring th,.promo-scoring td{padding:12px;border-bottom:1px solid rgba(168,216,255,.35);font-size:13px;text-align:left;color:var(--arg-blue);}
+.promo-scoring th{background:rgba(214,240,255,.55);font-family:'Montserrat',sans-serif;font-size:12px;text-transform:uppercase;color:#587895;}
+.promo-scoring td:last-child{text-align:right;font-family:'Montserrat',sans-serif;font-weight:900;color:#A57D18;}
+.promo-faq details{background:rgba(255,255,255,.72);border:1px solid rgba(168,216,255,.45);border-radius:16px;padding:12px 14px;margin-top:8px;}
+.promo-faq summary{cursor:pointer;font-family:'Montserrat',sans-serif;font-weight:800;color:var(--arg-blue);}
+.promo-faq details p{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.55;}
+
+@media(max-width:900px){
+  .promo-hero,.promo-grid{grid-template-columns:1fr;}
+  .promo-stats{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:520px){
+  .promo-copy{padding:22px;min-height:0;}
+  .promo-countdown{grid-template-columns:repeat(2,1fr);}
+  .promo-stats{grid-template-columns:1fr 1fr;}
+  .promo-stat strong{font-size:23px;}
+}
+
 </style>
 </head>
 <body>
@@ -949,6 +1005,9 @@ nav{
 
 <nav>
   <button class="nav-btn active" onclick="showPage('prode',this)">Prode</button>
+  <button class="nav-btn" onclick="jumpToProdeSection('howToPlay')">Cómo participar</button>
+  <button class="nav-btn" onclick="jumpToProdeSection('pointsGuide')">Puntos</button>
+  <button class="nav-btn" onclick="jumpToProdeSection('faqGuide')">FAQ</button>
   <button class="nav-btn" onclick="showPage('historial',this)">Historial</button>
   <button class="nav-btn" onclick="showPage('fixture',this)">Fixture</button>
   <button class="nav-btn" onclick="showPage('grupos',this)">Grupos</button>
@@ -958,6 +1017,80 @@ nav{
 
 <!-- PRODE -->
 <div class="page active" id="page-prode">
+  <section class="promo-hero" id="homeIntro">
+    <div class="promo-copy">
+      <div class="promo-kicker">Oficial · Prode Mundial 2026</div>
+      <h1 class="promo-title">Viví el <span>Mundial 2026</span> jugando tu prode</h1>
+      <p class="promo-text">Predecí todos los partidos, elegí al campeón, competí con tus amigos y seguí el ranking en vivo. Todo se guarda en la nube para que puedas volver cuando quieras.</p>
+      <div class="promo-actions">
+        <button class="btn-primary" onclick="scrollToPlay()">Hacer mi predicción</button>
+        <button class="btn-ghost" onclick="jumpToProdeSection('howToPlay')">Cómo funciona</button>
+      </div>
+    </div>
+    <div class="promo-visual">
+      <div class="promo-ball">⚽</div>
+      <div class="promo-countdown" id="worldCountdown">
+        <div class="count-box"><strong id="cdDays">--</strong><span>Días</span></div>
+        <div class="count-box"><strong id="cdHours">--</strong><span>Horas</span></div>
+        <div class="count-box"><strong id="cdMinutes">--</strong><span>Min</span></div>
+        <div class="count-box"><strong id="cdSeconds">--</strong><span>Seg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="promo-stats">
+    <div class="promo-stat"><strong>48</strong><span>Equipos</span></div>
+    <div class="promo-stat"><strong>104</strong><span>Partidos</span></div>
+    <div class="promo-stat"><strong>39</strong><span>Días de torneo</span></div>
+    <div class="promo-stat"><strong id="registeredCount">0</strong><span>Jugadores</span></div>
+  </div>
+
+  <section class="promo-grid" id="howToPlay">
+    <div class="promo-panel">
+      <div class="promo-step">01</div>
+      <h3>Registrate</h3>
+      <p>Creá tu jugador y guardá tu código. Ese código te permite volver a editar tus pronósticos desde este navegador.</p>
+    </div>
+    <div class="promo-panel">
+      <div class="promo-step">02</div>
+      <h3>Hacé tu predicción</h3>
+      <p>Elegí ganador o empate, cargá marcador exacto y seleccioná tu campeón del mundo.</p>
+    </div>
+    <div class="promo-panel">
+      <div class="promo-step">03</div>
+      <h3>Competí en el ranking</h3>
+      <p>Los puntos se recalculan cuando el administrador carga resultados oficiales.</p>
+    </div>
+  </section>
+
+  <section class="promo-panel promo-scoring" id="pointsGuide">
+    <div class="section-head">Cómo se suman los puntos</div>
+    <table>
+      <thead><tr><th>Predicción</th><th>Aplica</th><th>Puntos</th></tr></thead>
+      <tbody>
+        <tr><td>Resultado correcto</td><td>Todas las fases</td><td>+3</td></tr>
+        <tr><td>Marcador exacto</td><td>Bonus si acertaste el resultado</td><td>+2</td></tr>
+        <tr><td>Campeón del mundo</td><td>Final</td><td>+15</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="promo-panel promo-faq" id="faqGuide">
+    <div class="section-head">Preguntas frecuentes</div>
+    <details open>
+      <summary>¿Puedo modificar mis pronósticos?</summary>
+      <p>Sí. Podés editar cada partido hasta que se bloquee por horario. Después queda cerrado.</p>
+    </details>
+    <details>
+      <summary>¿Cuándo veo Acierto o Fallaste?</summary>
+      <p>Solo cuando el administrador cargue el resultado oficial. Antes de eso no se muestra evaluación.</p>
+    </details>
+    <details>
+      <summary>¿Qué pasa en eliminatorias si hay empate?</summary>
+      <p>El administrador carga el empate y selecciona quién ganó por penales.</p>
+    </details>
+  </section>
+
   <div class="cloud-bar" id="cloudBar">
     <span>☁️ Los datos se sincronizan automáticamente entre todos los jugadores.</span>
     <button class="btn-ghost" onclick="forceSyncFromCloud()" style="padding:4px 10px;font-size:11px;">↻ Actualizar</button>
@@ -1504,6 +1637,32 @@ function renderCurrentPage(){
   const r={prode:renderProde,historial:renderHistorial,fixture:renderFixture,grupos:renderGroups,tabla:renderLeaderboard,resultados:renderResultados};
   if(r[activePage]) r[activePage]();
 }
+function jumpToProdeSection(id){
+  const prodeBtn=document.querySelector(".nav-btn[onclick*=\"showPage('prode'\"]");
+  showPage('prode',prodeBtn);
+  setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+function scrollToPlay(){
+  document.getElementById('accessPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function updateRegisteredCount(){
+  const el=document.getElementById('registeredCount');
+  if(el) el.textContent=state.players.length;
+}
+function updateCountdown(){
+  const target=new Date(2026,6,19,16,0,0,0);
+  let diff=target.getTime()-Date.now();
+  if(diff<0) diff=0;
+  const days=Math.floor(diff/86400000);
+  const hours=Math.floor((diff%86400000)/3600000);
+  const minutes=Math.floor((diff%3600000)/60000);
+  const seconds=Math.floor((diff%60000)/1000);
+  const set=(id,val)=>{const el=document.getElementById(id);if(el) el.textContent=String(val).padStart(2,'0');};
+  set('cdDays',days);
+  set('cdHours',hours);
+  set('cdMinutes',minutes);
+  set('cdSeconds',seconds);
+}
 
 /* ── CHAMPION ── */
 function populateChampionSelect(){
@@ -1642,6 +1801,7 @@ function selectPlayer(id){
   updateHeaderScore();
 }
 function renderPlayerChips(){
+  updateRegisteredCount();
   const chips=document.getElementById('playerChips');
   const session=document.getElementById('activeSession');
   if(!chips) return;
@@ -1952,6 +2112,7 @@ function renderProde(){
   populateChampionSelect();
   const grid=document.getElementById('matchesGrid');
   const tabsEl=document.getElementById('prodeGroupTabs');
+  updateRegisteredCount();
   if(tabsEl){
     let adminBox=document.getElementById('phaseAdminBoxProde');
     if(state.adminSession){
@@ -2591,7 +2752,9 @@ function escAttr(s){return escHtml(s);}
   restorePlayerSession();
   if(currentPlayerId) currentHistTab=currentPlayerId;
   if(needsAccessCodeMigration) await saveToCloud();
+  updateCountdown();
   renderProde();
+  setInterval(updateCountdown,1000);
   setInterval(async()=>{
     const old=JSON.stringify({players:state.players,predictions:state.predictions,exactScores:state.exactScores,champions:state.champions,results:state.results,phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
     await loadFromCloud();
