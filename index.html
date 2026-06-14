@@ -1364,7 +1364,7 @@ MATCHES.forEach(m=>{MATCH_MAP[m.id]=m;});
 
 /* ── STATE ── */
 function createDefaultState(){
-  return {players:[],predictions:{},exactScores:{},champions:{},results:{},phaseTeams:{},tournamentPhase:'groups',adminSession:false};
+  return {players:[],predictions:{},exactScores:{},champions:{},results:{},phaseTeams:{},tournamentPhase:'groups',predictionsLocked:false,adminSession:false};
 }
 function migrateState(s){
   if(!Array.isArray(s.players))                            s.players    =[];
@@ -1374,6 +1374,7 @@ function migrateState(s){
   if(typeof s.results!=='object'||!s.results)             s.results    ={};
   if(typeof s.phaseTeams!=='object'||!s.phaseTeams)       s.phaseTeams ={};
   if(!TOURNAMENT_PHASES.includes(s.tournamentPhase))      s.tournamentPhase='groups';
+  if(typeof s.predictionsLocked!=='boolean')              s.predictionsLocked=false;
   if(typeof s.adminSession!=='boolean')                   s.adminSession=false;
   s.players.forEach(p=>{
     if(!p.accessCode){p.accessCode=generateAccessCode(p.name||'JUGADOR',s.players);needsAccessCodeMigration=true;}
@@ -1495,7 +1496,8 @@ async function saveToCloud(){
     champions: state.champions,
     results: state.results,
     phaseTeams: state.phaseTeams,
-    tournamentPhase: state.tournamentPhase
+    tournamentPhase: state.tournamentPhase,
+    predictionsLocked: state.predictionsLocked
   };
   const ok = await cloudSet('prode2026-main', toSave);
   if(ok) setSyncStatus('ok','Guardado ✓');
@@ -1568,7 +1570,17 @@ function isPredictionLocked(m){
   if(!lockAt) return false;
   return Date.now() >= lockAt.getTime();
 }
+function arePredictionsLockedByAdmin(){
+  return state.predictionsLocked === true;
+}
+function isPredictionInputLocked(m){
+  if(!state.adminSession && arePredictionsLockedByAdmin()) return true;
+  return isPredictionLocked(m);
+}
 function lockStatusHtml(m){
+  if(!state.adminSession && arePredictionsLockedByAdmin()){
+    return '<div class="lock-status closed">🔒 Carga bloqueada por el administrador</div>';
+  }
   const lockAt = getPredictionLockDate(m);
   if(!lockAt) return '';
   const locked = isPredictionLocked(m);
@@ -1673,10 +1685,12 @@ function populateChampionSelect(){
   sel.innerHTML='<option value="">— Elegí el campeón —</option>'+
     sorted.map(t=>`<option value="${escAttr(t.name)}">${t.flag} ${escHtml(t.name)}</option>`).join('');
   if(currentPlayerId&&state.champions[currentPlayerId]) sel.value=state.champions[currentPlayerId];
+  sel.disabled=!state.adminSession && arePredictionsLockedByAdmin();
   updateChampionBanner();
 }
 async function pickChampion(val){
   if(!currentPlayerId){showToast('Seleccioná un jugador primero','error');document.getElementById('champSelect').value='';return;}
+  if(!state.adminSession && arePredictionsLockedByAdmin()){showToast('La carga de pronósticos está bloqueada por el administrador','error');populateChampionSelect();return;}
   if(val) state.champions[currentPlayerId]=val;
   else    delete state.champions[currentPlayerId];
   await saveToCloud();
@@ -1922,6 +1936,9 @@ function getPhaseNotice(){
   const label=TOURNAMENT_PHASE_LABELS[state.tournamentPhase||'groups']||'Fase de Grupos';
   const participantTabs=getParticipantEnabledTabs();
   const locked=ALL_TABS.filter(t=>!participantTabs.includes(t));
+  if(!state.adminSession && arePredictionsLockedByAdmin()){
+    return `<div class="phase-notice">🔒 <span><strong>Carga bloqueada:</strong> el administrador pausó la edición de pronósticos.</span></div>`;
+  }
   if(state.adminSession){
     return `<div class="phase-notice">👑 <span><strong>Modo administradora:</strong> podés ver y cargar todas las fases. Estado público para participantes: ${label}.</span></div>`;
   }
@@ -2085,9 +2102,24 @@ async function setTournamentPhase(phase){
   renderCurrentPage();
   showToast('Fase del torneo actualizada','success');
 }
+async function setPredictionsLocked(locked){
+  if(!state.adminSession){showToast('Sin permisos','error');return;}
+  state.predictionsLocked=!!locked;
+  await saveToCloud();
+  renderCurrentPage();
+  showToast(state.predictionsLocked?'Carga de pronósticos bloqueada':'Carga de pronósticos habilitada','success');
+}
+function renderPredictionLockControl(){
+  const locked=arePredictionsLockedByAdmin();
+  return `
+    <span style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;">${locked?'🔒 Pronósticos bloqueados':'✅ Pronósticos habilitados'}</span>
+    <button class="${locked?'btn-primary':'btn-ghost'}" onclick="setPredictionsLocked(${locked?'false':'true'})">${locked?'Habilitar carga':'Bloquear carga'}</button>
+    <span style="font-size:12px;color:var(--muted);">${locked?'Los usuarios no pueden modificar partidos, marcadores ni campeón.':'Los usuarios pueden cargar y modificar sus pronósticos hasta que empiece cada partido.'}</span>`;
+}
 function renderPhaseAdminBox(){
   const cur=state.tournamentPhase||'groups';
   return `<div id="phaseAdminBox" class="phase-admin-box">
+    ${renderPredictionLockControl()}
     <span style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;">⚙ Estado del torneo</span>
     <select id="tournamentPhaseSelect" class="phase-select" onchange="setTournamentPhase(this.value)">
       ${TOURNAMENT_PHASES.map(p=>`<option value="${p}"${cur===p?' selected':''}>${TOURNAMENT_PHASE_LABELS[p]}</option>`).join('')}
@@ -2099,6 +2131,7 @@ function renderPhaseAdminBox(){
 function renderPhaseAdminBoxProde(){
   const cur=state.tournamentPhase||'groups';
   return `<div id="phaseAdminBoxProde" class="phase-admin-box">
+    ${renderPredictionLockControl()}
     <span style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;">👑 Administradora · Habilitar fase</span>
     <select id="tournamentPhaseSelectProde" class="phase-select" onchange="setTournamentPhase(this.value)">
       ${TOURNAMENT_PHASES.map(p=>`<option value="${p}"${cur===p?' selected':''}>${TOURNAMENT_PHASE_LABELS[p]}</option>`).join('')}
@@ -2174,7 +2207,7 @@ function buildMatchCard(m,pred,exact,isKO){
   const isExact=isCorrect&&exact&&sc&&parseInt(exact.home,10)===sc.h&&parseInt(exact.away,10)===sc.a;
   const isWrong=outcome&&pred&&pred!==outcome;
   const scoreStr=sc?`${sc.h} – ${sc.a}`:null;
-  const locked=isPredictionLocked(m);
+  const locked=isPredictionInputLocked(m);
   const disabledAttr=locked?' disabled aria-disabled="true"':'';
   let cls='match-card';
   if(locked) cls+=' locked-pred';
@@ -2245,7 +2278,7 @@ function buildMatchCard(m,pred,exact,isKO){
 async function predict(matchId,outcome){
   if(!currentPlayerId){showToast('Seleccioná un jugador primero','error');return;}
   const match=MATCH_MAP[matchId];
-  if(match && isPredictionLocked(match)){showToast('Este pronóstico ya está cerrado','error');return;}
+  if(match && isPredictionInputLocked(match)){showToast(arePredictionsLockedByAdmin()&&!state.adminSession?'La carga de pronósticos está bloqueada por el administrador':'Este pronóstico ya está cerrado','error');return;}
   if(!state.predictions[currentPlayerId]) state.predictions[currentPlayerId]={};
   const cur=state.predictions[currentPlayerId][matchId];
   if(cur===outcome) delete state.predictions[currentPlayerId][matchId];
@@ -2263,14 +2296,14 @@ let exactDebounce={};
 function saveExact(matchId){
   if(!currentPlayerId) return;
   const match=MATCH_MAP[matchId];
-  if(match && isPredictionLocked(match)){showToast('Este marcador exacto ya está cerrado','error');return;}
+  if(match && isPredictionInputLocked(match)){showToast(arePredictionsLockedByAdmin()&&!state.adminSession?'La carga de pronósticos está bloqueada por el administrador':'Este marcador exacto ya está cerrado','error');return;}
   if(exactDebounce[matchId]) clearTimeout(exactDebounce[matchId]);
   exactDebounce[matchId]=setTimeout(async()=>{
     const hEl=document.getElementById('exh-'+matchId);
     const aEl=document.getElementById('exa-'+matchId);
     if(!hEl||!aEl) return;
     const match=MATCH_MAP[matchId];
-    if(match && isPredictionLocked(match)){showToast('Este marcador exacto ya está cerrado','error');return;}
+    if(match && isPredictionInputLocked(match)){showToast(arePredictionsLockedByAdmin()&&!state.adminSession?'La carga de pronósticos está bloqueada por el administrador':'Este marcador exacto ya está cerrado','error');return;}
     const hv=hEl.value.trim(),av=aEl.value.trim();
     if(!state.exactScores[currentPlayerId]) state.exactScores[currentPlayerId]={};
     if(hv===''&&av===''){
@@ -2746,9 +2779,9 @@ function escAttr(s){return escHtml(s);}
   setSyncStatus('busy','Cargando...');
   const loaded=await loadFromCloud();
   if(!loaded) setSyncStatus('ok','Listo (nuevo)');
-  const beforeCleanup=JSON.stringify({phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
+  const beforeCleanup=JSON.stringify({phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase,predictionsLocked:state.predictionsLocked});
   refreshKnockoutTeamsFromResults();
-  const afterCleanup=JSON.stringify({phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
+  const afterCleanup=JSON.stringify({phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase,predictionsLocked:state.predictionsLocked});
   if(loaded && beforeCleanup!==afterCleanup) await saveToCloud();
   restorePlayerSession();
   if(currentPlayerId) currentHistTab=currentPlayerId;
@@ -2757,10 +2790,10 @@ function escAttr(s){return escHtml(s);}
   renderProde();
   setInterval(updateCountdown,1000);
   setInterval(async()=>{
-    const old=JSON.stringify({players:state.players,predictions:state.predictions,exactScores:state.exactScores,champions:state.champions,results:state.results,phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
+    const old=JSON.stringify({players:state.players,predictions:state.predictions,exactScores:state.exactScores,champions:state.champions,results:state.results,phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase,predictionsLocked:state.predictionsLocked});
     await loadFromCloud();
     refreshKnockoutTeamsFromResults();
-    const nuevo=JSON.stringify({players:state.players,predictions:state.predictions,exactScores:state.exactScores,champions:state.champions,results:state.results,phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase});
+    const nuevo=JSON.stringify({players:state.players,predictions:state.predictions,exactScores:state.exactScores,champions:state.champions,results:state.results,phaseTeams:state.phaseTeams,tournamentPhase:state.tournamentPhase,predictionsLocked:state.predictionsLocked});
     if(old!==nuevo) renderCurrentPage();
   },30000);
 })();
