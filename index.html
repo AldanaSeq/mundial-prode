@@ -1198,7 +1198,8 @@ nav{
 
 /* ── CONSTANTS ── */
 const ADMIN_PASSWORD = 'admin2026';
-const PREDICTION_LOCK_HOURS = 0; // Los pronósticos se bloquean cuando empieza cada partido
+const PREDICTION_LOCK_HOURS = 0; // Se usa solo si ENABLE_MATCH_TIME_LOCK está activo
+const ENABLE_MATCH_TIME_LOCK = false; // false permite modificar también partidos pasados
 const PHASE_ORDER = ['Fase de Grupos','16avos de Final','Octavos de Final','Cuartos de Final','Semifinales','Tercer Puesto','Final'];
 const GROUP_KEYS  = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 const KNOCKOUT_TABS = ['16avos','Octavos','Cuartos','Semis','Final'];
@@ -1566,6 +1567,7 @@ function getPredictionLockDate(m){
   return new Date(kickoff.getTime() - PREDICTION_LOCK_HOURS*60*60*1000);
 }
 function isPredictionLocked(m){
+  if(!ENABLE_MATCH_TIME_LOCK) return false;
   const lockAt = getPredictionLockDate(m);
   if(!lockAt) return false;
   return Date.now() >= lockAt.getTime();
@@ -1581,6 +1583,7 @@ function lockStatusHtml(m){
   if(!state.adminSession && arePredictionsLockedByAdmin()){
     return '<div class="lock-status closed">🔒 Carga bloqueada por el administrador</div>';
   }
+  if(!ENABLE_MATCH_TIME_LOCK) return '';
   const lockAt = getPredictionLockDate(m);
   if(!lockAt) return '';
   const locked = isPredictionLocked(m);
@@ -2114,7 +2117,7 @@ function renderPredictionLockControl(){
   return `
     <span style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;">${locked?'🔒 Pronósticos bloqueados':'✅ Pronósticos habilitados'}</span>
     <button class="${locked?'btn-primary':'btn-ghost'}" onclick="setPredictionsLocked(${locked?'false':'true'})">${locked?'Habilitar carga':'Bloquear carga'}</button>
-    <span style="font-size:12px;color:var(--muted);">${locked?'Los usuarios no pueden modificar partidos, marcadores ni campeón.':'Los usuarios pueden cargar y modificar sus pronósticos hasta que empiece cada partido.'}</span>`;
+    <span style="font-size:12px;color:var(--muted);">${locked?'Los usuarios no pueden modificar partidos, marcadores ni campeón.':'Los usuarios pueden cargar y modificar sus pronósticos, incluso de partidos pasados.'}</span>`;
 }
 function renderPhaseAdminBox(){
   const cur=state.tournamentPhase||'groups';
