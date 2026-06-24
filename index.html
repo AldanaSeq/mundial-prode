@@ -1880,8 +1880,8 @@ function ensureEnabledResultTab(){
 function isResolvedTeamName(name){
   const s=String(name||'').trim();
   if(!s) return false;
-  if(/^\dº Grupo [A-L]$/.test(s)) return false;
-  if(/^3º [A-L](?:\/[A-L])*$/.test(s)) return false;
+  if(/^\d\S*\s*Grupo [A-L]$/.test(s)) return false;
+  if(/^3\S*\s*[A-L](?:\/[A-L])*$/.test(s)) return false;
   if(/^G\. P\d+$/.test(s)) return false;
   if(/^G\. SF[12]$/.test(s)) return false;
   if(/^Perdedor SF[12]$/.test(s)) return false;
@@ -1981,17 +1981,17 @@ function hasAnyGroupResultLoaded(groupKey){
 function resolveSeed(seed, groupStandings, thirdsRanked, usedThirdGroups){
   if(!seed) return null;
   const s=String(seed).trim();
-  let m=s.match(/^1º Grupo ([A-L])$/);
+  let m=s.match(/^1\S*\s*Grupo ([A-L])$/);
   if(m){
     const g=m[1];
     return hasAnyGroupResultLoaded(g) ? (groupStandings[g]?.[0]?.name||s) : s;
   }
-  m=s.match(/^2º Grupo ([A-L])$/);
+  m=s.match(/^2\S*\s*Grupo ([A-L])$/);
   if(m){
     const g=m[1];
     return hasAnyGroupResultLoaded(g) ? (groupStandings[g]?.[1]?.name||s) : s;
   }
-  m=s.match(/^3º ([A-L](?:\/[A-L])*)$/);
+  m=s.match(/^3\S*\s*([A-L](?:\/[A-L])*)$/);
   if(m){
     // Los mejores terceros solo se pueden definir cuando están cargados TODOS los grupos.
     if(!areAllGroupResultsLoaded()) return s;
