@@ -1895,7 +1895,7 @@ function areMatchesResolved(matchIds){
 }
 function canResolvePhase(phaseLabel){
   if(phaseLabel==='Fase de Grupos') return true;
-  if(phaseLabel==='16avos de Final') return areAllGroupResultsLoaded();
+  if(phaseLabel==='16avos de Final') return true;
   if(phaseLabel==='Octavos de Final') return areMatchesResolved(Array.from({length:16},(_,i)=>'R32_'+(i+1)));
   if(phaseLabel==='Cuartos de Final') return areMatchesResolved(Array.from({length:8},(_,i)=>'R16_'+(i+1)));
   if(phaseLabel==='Semifinales') return areMatchesResolved(Array.from({length:4},(_,i)=>'QF_'+(i+1)));
@@ -1908,7 +1908,7 @@ function clearPhaseTeamsByPhase(phaseLabel){
 }
 function clearInvalidKnockoutPhaseTeams(){
   state.phaseTeams=state.phaseTeams||{};
-  ['16avos de Final','Octavos de Final','Cuartos de Final','Semifinales','Tercer Puesto','Final'].forEach(ph=>{
+  ['Octavos de Final','Cuartos de Final','Semifinales','Tercer Puesto','Final'].forEach(ph=>{
     if(!canResolvePhase(ph)) clearPhaseTeamsByPhase(ph);
   });
 }
@@ -1925,7 +1925,6 @@ function normalizeTournamentPhasePrerequisites(){
 }
 function getMatchDisplay(m){
   clearInvalidKnockoutPhaseTeams();
-  if(m.group==='—' && !canResolvePhase(m.phase)) return m;
   const override=state.phaseTeams&&state.phaseTeams[m.id];
   if(!override) return m;
   const home=isResolvedTeamName(override.home)?override.home:m.home;
@@ -1974,18 +1973,23 @@ function areGroupResultsLoaded(groupKey){
 function areAllGroupResultsLoaded(){
   return GROUP_KEYS.every(g=>areGroupResultsLoaded(g));
 }
+function hasAnyGroupResultLoaded(groupKey){
+  return MATCHES
+    .filter(m=>m.phase==='Fase de Grupos' && m.group===groupKey)
+    .some(m=>isOfficialResult(m.id));
+}
 function resolveSeed(seed, groupStandings, thirdsRanked, usedThirdGroups){
   if(!seed) return null;
   const s=String(seed).trim();
   let m=s.match(/^1º Grupo ([A-L])$/);
   if(m){
     const g=m[1];
-    return areGroupResultsLoaded(g) ? (groupStandings[g]?.[0]?.name||s) : s;
+    return hasAnyGroupResultLoaded(g) ? (groupStandings[g]?.[0]?.name||s) : s;
   }
   m=s.match(/^2º Grupo ([A-L])$/);
   if(m){
     const g=m[1];
-    return areGroupResultsLoaded(g) ? (groupStandings[g]?.[1]?.name||s) : s;
+    return hasAnyGroupResultLoaded(g) ? (groupStandings[g]?.[1]?.name||s) : s;
   }
   m=s.match(/^3º ([A-L](?:\/[A-L])*)$/);
   if(m){
@@ -1999,12 +2003,6 @@ function resolveSeed(seed, groupStandings, thirdsRanked, usedThirdGroups){
 }
 function completeRound32Teams(){
   state.phaseTeams=state.phaseTeams||{};
-  // 16avos NO se completan hasta que estén cargados TODOS los resultados oficiales de grupos.
-  // Si falta aunque sea un grupo, se borran cruces viejos que hayan quedado guardados en Supabase/localStorage.
-  if(!areAllGroupResultsLoaded()){
-    clearPhaseTeamsByPhase('16avos de Final');
-    return false;
-  }
   const groupStandings={}; GROUP_KEYS.forEach(g=>groupStandings[g]=calculateGroupStandings(g));
   const thirdsRanked=getThirdsRanked().slice(0,8);
   const usedThirdGroups=new Set();
