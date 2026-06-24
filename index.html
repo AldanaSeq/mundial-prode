@@ -1924,6 +1924,7 @@ function normalizeTournamentPhasePrerequisites(){
   if(checks[cur] && !canResolvePhase(checks[cur])) state.tournamentPhase='groups';
 }
 function getMatchDisplay(m){
+  if(m.phase==='16avos de Final') completeRound32Teams();
   clearInvalidKnockoutPhaseTeams();
   const override=state.phaseTeams&&state.phaseTeams[m.id];
   if(!override) return m;
