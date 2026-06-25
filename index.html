@@ -1007,15 +1007,16 @@ nav{
 }
 .bracket-stage{
   display:grid;
-  grid-template-columns:repeat(5, minmax(190px,1fr));
-  gap:18px;
-  min-width:1040px;
-  align-items:stretch;
+  grid-template-columns:minmax(210px,1.08fr) repeat(4,minmax(190px,1fr));
+  gap:24px;
+  min-width:1120px;
+  align-items:start;
 }
 .bracket-round{
-  display:grid;
-  align-content:stretch;
+  display:flex;
+  flex-direction:column;
   gap:10px;
+  min-height:1320px;
 }
 .bracket-round-title{
   height:28px;
@@ -1038,9 +1039,17 @@ nav{
   border-color:rgba(212,175,55,.55);
 }
 .bracket-slots{
-  display:grid;
+  position:relative;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
   gap:10px;
-  height:100%;
+}
+.bracket-round.round-index-0 .bracket-slots{justify-content:flex-start;}
+.bracket-round.round-index-4 .bracket-slots{
+  justify-content:center;
+  gap:28px;
 }
 .bracket-card{
   position:relative;
@@ -1055,12 +1064,24 @@ nav{
   content:'';
   position:absolute;
   top:50%;
-  right:-18px;
-  width:18px;
+  right:-24px;
+  width:24px;
+  height:1px;
+  background:rgba(49,125,186,.32);
+}
+.bracket-round:not(.round-index-0) .bracket-card::before{
+  content:'';
+  position:absolute;
+  top:50%;
+  left:-24px;
+  width:24px;
   height:1px;
   background:rgba(49,125,186,.32);
 }
 .bracket-round:last-child .bracket-card::after{display:none;}
+.bracket-round.round-index-4 .third-card{
+  margin-top:20px;
+}
 .bracket-card.final-card{
   background:linear-gradient(145deg,rgba(255,248,216,.92),rgba(255,255,255,.82));
   border-color:rgba(212,175,55,.45);
@@ -1123,12 +1144,16 @@ nav{
 @media(max-width:900px){
   .promo-hero,.promo-grid{grid-template-columns:1fr;}
   .promo-stats{grid-template-columns:repeat(2,1fr);}
+  .bracket-stage{min-width:1080px;}
+  .bracket-round{min-height:1220px;}
 }
 @media(max-width:520px){
   .promo-copy{padding:22px;min-height:0;}
   .promo-countdown{grid-template-columns:repeat(2,1fr);}
   .promo-stats{grid-template-columns:1fr 1fr;}
   .promo-stat strong{font-size:23px;}
+  .knockout-bracket{padding:12px;border-radius:18px;}
+  .bracket-stage{min-width:1040px;gap:20px;}
 }
 
 </style>
@@ -2175,10 +2200,10 @@ function renderKnockoutBracket(tab){
       </div>
     </div>
     <div class="bracket-stage">
-      ${BRACKET_ROUNDS.map(round=>`
-        <div class="bracket-round${round.tab===tab?' active':''}">
+      ${BRACKET_ROUNDS.map((round,idx)=>`
+        <div class="bracket-round round-index-${idx}${round.tab===tab?' active':''}">
           <div class="bracket-round-title">${round.label}</div>
-          <div class="bracket-slots" style="grid-template-rows:repeat(${round.ids.length},minmax(72px,1fr));">
+          <div class="bracket-slots">
             ${round.ids.map(buildBracketCard).join('')}
           </div>
         </div>`).join('')}
