@@ -980,261 +980,15 @@ nav{
 .promo-faq summary{cursor:pointer;font-family:'Montserrat',sans-serif;font-weight:800;color:var(--arg-blue);}
 .promo-faq details p{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.55;}
 
-/* Llave eliminatoria */
-.knockout-bracket{
-  margin:0 0 18px;
-  padding:12px 18px 22px;
-  border:1px solid rgba(168,216,255,.34);
-  border-radius:10px;
-  background:#fff !important;
-  box-shadow:0 12px 28px rgba(30,58,95,.08);
-  overflow-x:auto;
-  color:var(--arg-blue);
-}
-.bracket-head{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  margin-bottom:4px;
-  text-align:center;
-}
-.bracket-title{
-  color:#0b4da2;
-  font-family:'Montserrat','Poppins',sans-serif;
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:10px;
-  line-height:1.15;
-  text-transform:uppercase;
-}
-.bracket-subtitle{
-  color:#268b55;
-  font-family:'Roboto Mono',monospace;
-  font-size:16px;
-  font-weight:700;
-  letter-spacing:8px;
-}
-.bracket-stage{
-  display:grid;
-  grid-template-columns:minmax(470px,1fr) 170px minmax(470px,1fr);
-  gap:22px;
-  min-width:1120px;
-  align-items:center;
-}
-.bracket-half{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(94px,1fr));
-  gap:14px;
-}
-.bracket-half.right{
-  grid-template-columns:repeat(4,minmax(94px,1fr));
-}
-.bracket-col{
-  position:relative;
-  display:grid;
-  grid-template-rows:32px repeat(24,30px);
-  gap:0;
-}
-.bracket-col-title{
-  height:32px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:0;
-  background:transparent;
-  border:0;
-  color:var(--arg-blue);
-  font-family:'Montserrat','Poppins',sans-serif;
-  font-size:10px;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:6px;
-  text-shadow:none;
-}
-.bracket-col.active .bracket-col-title{
-  color:#A57D18;
-}
-.bracket-center{
-  display:grid;
-  grid-template-rows:32px 112px repeat(22,30px);
-  align-self:stretch;
-  justify-items:center;
-}
-.bracket-center-title{
-  grid-row:15;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#72BFF5;
-  font-family:'Montserrat','Poppins',sans-serif;
-  font-size:11px;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:4px;
-}
-.bracket-trophy{
-  grid-row:2 / span 4;
-  display:grid;
-  place-items:center;
-  color:#7A98B0;
-  font-size:70px;
-  filter:grayscale(.15);
-}
-.bracket-card{
-  position:relative;
-  min-height:58px;
-  height:58px;
-  border:0;
-  border-radius:0;
-  background:transparent !important;
-  box-shadow:none;
-  padding:0;
-  overflow:visible;
-  display:grid;
-  align-content:center;
-  gap:4px;
-}
-.bracket-card.bracket-spacer{
-  visibility:hidden;
-  pointer-events:none;
-}
-.bracket-card::after{
-  content:'';
-  position:absolute;
-  top:50%;
-  right:-16px;
-  width:16px;
-  height:2px;
-  background:#0b63d1;
-}
-.bracket-half.right .bracket-card::after{
-  left:-16px;
-  right:auto;
-}
-.bracket-card::before{
-  content:'';
-  position:absolute;
-  top:50%;
-  right:-8px;
-  width:2px;
-  height:90px;
-  background:#0b63d1;
-  display:none;
-}
-.bracket-half.right .bracket-card::before{
-  left:-8px;
-  right:auto;
-}
-.bracket-card.connector-top::before{
-  display:block;
-  transform:translateY(-90px);
-}
-.bracket-card.connector-bottom::before{
-  display:block;
-}
-.bracket-col-Octavos .bracket-card::before{
-  height:180px;
-}
-.bracket-col-Octavos .bracket-card.connector-top::before{
-  transform:translateY(-180px);
-}
-.bracket-col-Cuartos .bracket-card::before{
-  height:360px;
-}
-.bracket-col-Cuartos .bracket-card.connector-top::before{
-  transform:translateY(-360px);
-}
-.bracket-half.left .bracket-col:last-child .bracket-card::after,
-.bracket-half.right .bracket-col:first-child .bracket-card::after,
-.bracket-center .bracket-card::after{
-  display:none;
-}
-.bracket-half.left .bracket-col:last-child .bracket-card::before,
-.bracket-half.right .bracket-col:first-child .bracket-card::before,
-.bracket-center .bracket-card::before{
-  display:none;
-}
-.bracket-card.final-card{
-  background:transparent !important;
-  height:58px;
-}
-.bracket-card.third-card{
-  background:transparent !important;
-  border-style:solid;
-  opacity:.88;
-  height:58px;
-}
-.bracket-match-meta{
-  display:none;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  color:#7A98B0;
-  font-family:'Roboto Mono',monospace;
-  font-size:8px;
-  margin-bottom:4px;
-}
-.bracket-team{
-  display:grid;
-  grid-template-columns:16px 1fr auto;
-  align-items:center;
-  gap:5px;
-  min-height:25px;
-  height:25px;
-  border:2px solid #0b63d1;
-  border-radius:999px;
-  background:rgba(255,255,255,.94);
-  padding:2px 8px;
-  color:var(--arg-blue);
-  font-size:9px;
-  font-weight:800;
-}
-.bracket-team + .bracket-team{margin-top:0;}
-.bracket-team .flag-img{
-  width:15px;
-  height:10px;
-  border-radius:2px;
-  box-shadow:none;
-  margin:0;
-}
-.bracket-team-name{
-  min-width:0;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.bracket-score{
-  min-width:18px;
-  text-align:right;
-  font-family:'Roboto Mono',monospace;
-  color:#A57D18;
-}
-.bracket-team.winner .bracket-team-name{color:#317DBA;}
-.bracket-team.loser{opacity:.58;}
-.bracket-venue{
-  display:none;
-  margin-top:3px;
-  color:#7A98B0;
-  font-size:8px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
 @media(max-width:900px){
   .promo-hero,.promo-grid{grid-template-columns:1fr;}
   .promo-stats{grid-template-columns:repeat(2,1fr);}
-  .bracket-stage{min-width:1120px;}
 }
 @media(max-width:520px){
   .promo-copy{padding:22px;min-height:0;}
   .promo-countdown{grid-template-columns:repeat(2,1fr);}
   .promo-stats{grid-template-columns:1fr 1fr;}
   .promo-stat strong{font-size:23px;}
-  .knockout-bracket{padding:0 10px 12px;border-radius:12px;}
-  .bracket-stage{min-width:1080px;gap:12px;}
 }
 
 </style>
@@ -1391,7 +1145,6 @@ nav{
     <div class="stat-tile"><span class="val" id="stPct">0%</span><span class="lbl">Efect.</span></div>
   </div>
   <div class="group-tabs" id="prodeGroupTabs"></div>
-  <div id="prodeBracketMount"></div>
   <div class="matches-grid" id="matchesGrid"></div>
 </div>
 
@@ -1444,7 +1197,6 @@ nav{
     <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Solo el admin puede cargar resultados. Los puntos se recalculan automáticamente y se sincronizan en la nube.</p>
     <div id="adminPlayersMount"></div>
     <div class="group-tabs" id="resultGroupTabs"></div>
-    <div id="resultBracketMount"></div>
     <div class="matches-grid" id="resultGrid"></div>
   </div>
 </div>
@@ -2224,107 +1976,6 @@ function getMatchDisplay(m){
 function getMatchesForTabDisplay(tab){
   return getMatchesForTab(tab).map(getMatchDisplay);
 }
-const BRACKET_LAYOUT = {
-  left:[
-    {tab:'16avos',label:'16avos',items:[['R32_2',2],['R32_5',5],['R32_1',8],['R32_3',11],['R32_11',14],['R32_12',17],['R32_9',20],['R32_10',23]]},
-    {tab:'Octavos',label:'Octavos',items:[['R16_1',3],['R16_2',9],['R16_5',15],['R16_6',21]]},
-    {tab:'Cuartos',label:'Cuartos',items:[['QF_1',6],['QF_2',18]]},
-    {tab:'Semis',label:'Semis',items:[['SF_1',12]]}
-  ],
-  right:[
-    {tab:'Semis',label:'Semis',items:[['SF_2',12]]},
-    {tab:'Cuartos',label:'Cuartos',items:[['QF_3',6],['QF_4',18]]},
-    {tab:'Octavos',label:'Octavos',items:[['R16_3',3],['R16_4',9],['R16_7',15],['R16_8',21]]},
-    {tab:'16avos',label:'16avos',items:[['R32_4',2],['R32_6',5],['R32_7',8],['R32_8',11],['R32_14',14],['R32_16',17],['R32_13',20],['R32_15',23]]}
-  ]
-};
-function getMatchPublicNumber(id){
-  let m=String(id||'').match(/^R32_(\d+)$/);
-  if(m) return 72+parseInt(m[1],10);
-  m=String(id||'').match(/^R16_(\d+)$/);
-  if(m) return 88+parseInt(m[1],10);
-  m=String(id||'').match(/^QF_(\d+)$/);
-  if(m) return 96+parseInt(m[1],10);
-  m=String(id||'').match(/^SF_(\d+)$/);
-  if(m) return 100+parseInt(m[1],10);
-  if(id==='3RD') return 103;
-  if(id==='FIN') return 104;
-  return '';
-}
-function buildBracketTeamRow(match, side){
-  const name=match[side];
-  const displayName=getBracketTeamLabel(name);
-  const team=getTeam(name);
-  const score=getOfficialScore(match.id);
-  const outcome=score?getResultOutcome(match.id):null;
-  const cls=`bracket-team${outcome===side?' winner':outcome&&outcome!==side?' loser':''}`;
-  const scoreTxt=score ? (side==='home'?score.h:score.a) : '';
-  return `<div class="${cls}">
-    ${flagImg(team)}
-    <span class="bracket-team-name" title="${escAttr(displayName)}">${escHtml(displayName)}</span>
-    <span class="bracket-score">${scoreTxt}</span>
-  </div>`;
-}
-function getBracketTeamLabel(name){
-  const s=String(name||'').trim();
-  let m=s.match(/^G\. P(\d+)$/);
-  if(m) return `G. P${m[1]}`;
-  m=s.match(/^G\. SF([12])$/);
-  if(m) return `G. P${100+parseInt(m[1],10)}`;
-  m=s.match(/^Perdedor SF([12])$/);
-  if(m) return `P. P${100+parseInt(m[1],10)}`;
-  m=s.match(/^([12])\S*\s*Grupo ([A-L])$/);
-  if(m) return `${m[1]}${m[2]}`;
-  return s;
-}
-function buildBracketCard(matchId, connectorClass=''){
-  const base=MATCH_MAP[matchId];
-  if(!base) return '';
-  const match=getMatchDisplay(base);
-  const number=getMatchPublicNumber(matchId);
-  const extraCls=matchId==='FIN'?' final-card':matchId==='3RD'?' third-card':'';
-  const title=matchId==='3RD'?'3er puesto':number?`P${number}`:match.id;
-  return `<div class="bracket-card${extraCls}${connectorClass?' '+connectorClass:''}">
-    <div class="bracket-match-meta"><span>${title}</span><span>${escHtml(match.date)} ${escHtml(match.time)}</span></div>
-    ${buildBracketTeamRow(match,'home')}
-    ${buildBracketTeamRow(match,'away')}
-    <div class="bracket-venue">${escHtml(match.venue)}</div>
-  </div>`;
-}
-function renderBracketColumn(col, tab){
-  return `<div class="bracket-col bracket-col-${col.tab}${col.tab===tab?' active':''}">
-    <div class="bracket-col-title">${col.label}</div>
-    ${col.items.map(([id,row],idx)=>{
-      const cls=col.items.length>1 ? (idx%2===0?'connector-bottom':'connector-top') : '';
-      return `<div style="grid-row:${row} / span 2;">${buildBracketCard(id,cls)}</div>`;
-    }).join('')}
-  </div>`;
-}
-function renderKnockoutBracket(tab){
-  if(!KNOCKOUT_TABS.includes(tab)) return '';
-  return `<section class="knockout-bracket">
-    <div class="bracket-head">
-      <div>
-        <div class="bracket-title">Mundial de<br>Fútbol</div>
-        <div class="bracket-subtitle">2026</div>
-      </div>
-    </div>
-    <div class="bracket-stage">
-      <div class="bracket-half left">${BRACKET_LAYOUT.left.map(col=>renderBracketColumn(col,tab)).join('')}</div>
-      <div class="bracket-center">
-        <div class="bracket-trophy">🏆</div>
-        <div class="bracket-center-title">Final</div>
-        <div style="grid-row:13 / span 2;">${buildBracketCard('FIN')}</div>
-        <div style="grid-row:20 / span 2;">${buildBracketCard('3RD')}</div>
-      </div>
-      <div class="bracket-half right">${BRACKET_LAYOUT.right.map(col=>renderBracketColumn(col,tab)).join('')}</div>
-    </div>
-  </section>`;
-}
-function renderBracketMount(mountId, tab){
-  const mount=document.getElementById(mountId);
-  if(mount) mount.innerHTML=renderKnockoutBracket(tab);
-}
 function getPhaseNotice(){
   const label=TOURNAMENT_PHASE_LABELS[state.tournamentPhase||'groups']||'Fase de Grupos';
   const participantTabs=getParticipantEnabledTabs();
@@ -2573,7 +2224,6 @@ function getMatchesForTab(tab){
 function renderMatchCards(){
   const grid=document.getElementById('matchesGrid');
   if(!grid) return;
-  renderBracketMount('prodeBracketMount', currentProdeTab);
   if(!currentPlayerId){
     grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="icon">👤</div>Ingresá con tu código o creá un jugador</div>';
     return;
@@ -3051,7 +2701,6 @@ function setResultTab(tab){if(!isTabEnabled(tab)){showToast('Primero habilitá e
 function renderResultCards(){
   const grid=document.getElementById('resultGrid');
   if(!grid) return;
-  renderBracketMount('resultBracketMount', currentResultTab);
   const matches=getMatchesForTabDisplay(currentResultTab);
   if(!matches.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="icon">📭</div>Sin partidos</div>';return;}
   grid.innerHTML=matches.map(buildResultCard).join('');
