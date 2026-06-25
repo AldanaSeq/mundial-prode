@@ -1213,20 +1213,6 @@ nav{
 }
 .bracket-team.winner .bracket-team-name{color:#317DBA;}
 .bracket-team.loser{opacity:.58;}
-.bracket-match-line{
-  display:none;
-  min-width:0;
-  max-width:100%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  display:block;
-  color:var(--arg-blue);
-  font-size:9px;
-  font-weight:900;
-  line-height:1;
-  padding:0 3px;
-}
 .bracket-venue{
   display:none;
   margin-top:3px;
@@ -2241,14 +2227,14 @@ function getMatchesForTabDisplay(tab){
 const BRACKET_LAYOUT = {
   left:[
     {tab:'16avos',label:'16avos',items:[['R32_2',2],['R32_5',5],['R32_1',8],['R32_3',11],['R32_11',14],['R32_12',17],['R32_9',20],['R32_10',23]]},
-    {tab:'Octavos',label:'Octavos',items:[['R16_1',4],['R16_2',10],['R16_5',16],['R16_6',22]]},
-    {tab:'Cuartos',label:'Cuartos',items:[['QF_1',7],['QF_2',19]]},
-    {tab:'Semis',label:'Semis',items:[['SF_1',13]]}
+    {tab:'Octavos',label:'Octavos',items:[['R16_1',3],['R16_2',9],['R16_5',15],['R16_6',21]]},
+    {tab:'Cuartos',label:'Cuartos',items:[['QF_1',6],['QF_2',18]]},
+    {tab:'Semis',label:'Semis',items:[['SF_1',12]]}
   ],
   right:[
-    {tab:'Semis',label:'Semis',items:[['SF_2',13]]},
-    {tab:'Cuartos',label:'Cuartos',items:[['QF_3',7],['QF_4',19]]},
-    {tab:'Octavos',label:'Octavos',items:[['R16_3',4],['R16_4',10],['R16_7',16],['R16_8',22]]},
+    {tab:'Semis',label:'Semis',items:[['SF_2',12]]},
+    {tab:'Cuartos',label:'Cuartos',items:[['QF_3',6],['QF_4',18]]},
+    {tab:'Octavos',label:'Octavos',items:[['R16_3',3],['R16_4',9],['R16_7',15],['R16_8',21]]},
     {tab:'16avos',label:'16avos',items:[['R32_4',2],['R32_6',5],['R32_7',8],['R32_8',11],['R32_14',14],['R32_16',17],['R32_13',20],['R32_15',23]]}
   ]
 };
@@ -2290,13 +2276,6 @@ function getBracketTeamLabel(name){
   m=s.match(/^([12])\S*\s*Grupo ([A-L])$/);
   if(m) return `${m[1]}${m[2]}`;
   return s;
-}
-function getBracketMatchLine(match){
-  const h=getBracketTeamLabel(match.home);
-  const a=getBracketTeamLabel(match.away);
-  const score=getOfficialScore(match.id);
-  if(score) return `${h} ${score.h}-${score.a} ${a}`;
-  return `${h} vs ${a}`;
 }
 function buildBracketCard(matchId, connectorClass=''){
   const base=MATCH_MAP[matchId];
