@@ -979,12 +979,12 @@ nav{
 .knockout-bracket{
   margin:0 0 18px;
   padding:0 14px 14px;
-  border:1px solid rgba(31,115,65,.52);
-  border-radius:4px;
-  background:#123a2a;
-  box-shadow:0 16px 34px rgba(8,45,28,.18);
+  border:1px solid rgba(168,216,255,.55);
+  border-radius:12px;
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(238,248,255,.72));
+  box-shadow:var(--shadow-soft);
   overflow-x:auto;
-  color:#e9fff0;
+  color:var(--arg-blue);
 }
 .bracket-head{
   display:none;
@@ -1010,24 +1010,24 @@ nav{
   border-radius:0;
   background:transparent;
   border:0;
-  color:#fff;
+  color:var(--arg-blue);
   font-family:'Montserrat','Poppins',sans-serif;
   font-size:13px;
   font-weight:900;
   text-transform:uppercase;
   letter-spacing:.2px;
-  text-shadow:0 1px 0 #000;
+  text-shadow:none;
 }
 .bracket-round.active .bracket-round-title{
-  color:#f7d968;
+  color:#A57D18;
 }
 .bracket-card{
   position:relative;
   min-height:54px;
   height:54px;
-  border:1px solid rgba(28,125,67,.5);
+  border:1px solid rgba(168,216,255,.58);
   border-radius:5px;
-  background:#14622f;
+  background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(214,240,255,.78));
   box-shadow:none;
   padding:5px 7px;
 }
@@ -1042,17 +1042,17 @@ nav{
   right:-12px;
   width:12px;
   height:1px;
-  background:#1a7d42;
+  background:rgba(49,125,186,.35);
 }
 .bracket-round:last-child .bracket-card::after{
   display:none;
 }
 .bracket-card.final-card{
-  background:#185f30;
-  border-color:#d0b441;
+  background:linear-gradient(145deg,rgba(255,248,216,.92),rgba(255,255,255,.82));
+  border-color:rgba(212,175,55,.55);
 }
 .bracket-card.third-card{
-  background:#104c29;
+  background:linear-gradient(145deg,rgba(248,252,255,.92),rgba(214,240,255,.58));
   border-style:solid;
   opacity:.88;
 }
@@ -1061,7 +1061,7 @@ nav{
   align-items:center;
   justify-content:space-between;
   gap:8px;
-  color:#c7e7cf;
+  color:#7A98B0;
   font-family:'Roboto Mono',monospace;
   font-size:8px;
   margin-bottom:4px;
@@ -1072,7 +1072,7 @@ nav{
   align-items:center;
   gap:5px;
   min-height:19px;
-  color:#e4f5e8;
+  color:var(--arg-blue);
   font-size:10px;
   font-weight:800;
 }
@@ -1094,14 +1094,14 @@ nav{
   min-width:18px;
   text-align:right;
   font-family:'Roboto Mono',monospace;
-  color:#fff;
+  color:#A57D18;
 }
-.bracket-team.winner .bracket-team-name{color:#fff;}
+.bracket-team.winner .bracket-team-name{color:#21896A;}
 .bracket-team.loser{opacity:.58;}
 .bracket-venue{
   display:none;
   margin-top:3px;
-  color:#a6d2b2;
+  color:#7A98B0;
   font-size:8px;
   white-space:nowrap;
   overflow:hidden;
@@ -1118,7 +1118,7 @@ nav{
   .promo-countdown{grid-template-columns:repeat(2,1fr);}
   .promo-stats{grid-template-columns:1fr 1fr;}
   .promo-stat strong{font-size:23px;}
-  .knockout-bracket{padding:0 10px 12px;border-radius:4px;}
+  .knockout-bracket{padding:0 10px 12px;border-radius:12px;}
   .bracket-stage{min-width:930px;gap:10px;}
 }
 
