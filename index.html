@@ -1034,7 +1034,7 @@ nav{
 .bracket-col{
   position:relative;
   display:grid;
-  grid-template-rows:32px repeat(24,26px);
+  grid-template-rows:32px repeat(24,30px);
   gap:0;
 }
 .bracket-col-title{
@@ -1058,7 +1058,7 @@ nav{
 }
 .bracket-center{
   display:grid;
-  grid-template-rows:32px 112px repeat(22,26px);
+  grid-template-rows:32px 112px repeat(22,30px);
   align-self:stretch;
   justify-items:center;
 }
@@ -1084,17 +1084,17 @@ nav{
 }
 .bracket-card{
   position:relative;
-  min-height:32px;
-  height:32px;
-  border:2px solid #0b63d1;
-  border-radius:999px;
-  background:rgba(255,255,255,.94) !important;
+  min-height:58px;
+  height:58px;
+  border:0;
+  border-radius:0;
+  background:transparent !important;
   box-shadow:none;
-  padding:3px 9px;
+  padding:0;
   overflow:visible;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display:grid;
+  align-content:center;
+  gap:4px;
 }
 .bracket-card.bracket-spacer{
   visibility:hidden;
@@ -1119,7 +1119,7 @@ nav{
   top:50%;
   right:-8px;
   width:2px;
-  height:78px;
+  height:90px;
   background:#0b63d1;
   display:none;
 }
@@ -1129,22 +1129,22 @@ nav{
 }
 .bracket-card.connector-top::before{
   display:block;
-  transform:translateY(-78px);
+  transform:translateY(-90px);
 }
 .bracket-card.connector-bottom::before{
   display:block;
 }
 .bracket-col-Octavos .bracket-card::before{
-  height:156px;
+  height:180px;
 }
 .bracket-col-Octavos .bracket-card.connector-top::before{
-  transform:translateY(-156px);
+  transform:translateY(-180px);
 }
 .bracket-col-Cuartos .bracket-card::before{
-  height:312px;
+  height:360px;
 }
 .bracket-col-Cuartos .bracket-card.connector-top::before{
-  transform:translateY(-312px);
+  transform:translateY(-360px);
 }
 .bracket-half.left .bracket-col:last-child .bracket-card::after,
 .bracket-half.right .bracket-col:first-child .bracket-card::after,
@@ -1157,17 +1157,14 @@ nav{
   display:none;
 }
 .bracket-card.final-card{
-  background:rgba(255,255,255,.96) !important;
-  border-color:#7dbdff;
-  border-radius:12px;
-  height:48px;
+  background:transparent !important;
+  height:58px;
 }
 .bracket-card.third-card{
-  background:rgba(255,255,255,.72) !important;
+  background:transparent !important;
   border-style:solid;
   opacity:.88;
-  border-radius:12px;
-  height:34px;
+  height:58px;
 }
 .bracket-match-meta{
   display:none;
@@ -1180,16 +1177,21 @@ nav{
   margin-bottom:4px;
 }
 .bracket-team{
-  display:none;
+  display:grid;
   grid-template-columns:16px 1fr auto;
   align-items:center;
   gap:5px;
-  min-height:17px;
+  min-height:25px;
+  height:25px;
+  border:2px solid #0b63d1;
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  padding:2px 8px;
   color:var(--arg-blue);
   font-size:9px;
   font-weight:800;
 }
-.bracket-team + .bracket-team{margin-top:2px;}
+.bracket-team + .bracket-team{margin-top:0;}
 .bracket-team .flag-img{
   width:15px;
   height:10px;
@@ -1212,6 +1214,7 @@ nav{
 .bracket-team.winner .bracket-team-name{color:#317DBA;}
 .bracket-team.loser{opacity:.58;}
 .bracket-match-line{
+  display:none;
   min-width:0;
   max-width:100%;
   overflow:hidden;
@@ -2304,7 +2307,8 @@ function buildBracketCard(matchId, connectorClass=''){
   const title=matchId==='3RD'?'3er puesto':number?`P${number}`:match.id;
   return `<div class="bracket-card${extraCls}${connectorClass?' '+connectorClass:''}">
     <div class="bracket-match-meta"><span>${title}</span><span>${escHtml(match.date)} ${escHtml(match.time)}</span></div>
-    <div class="bracket-match-line" title="${escAttr(getBracketMatchLine(match))}">${escHtml(getBracketMatchLine(match))}</div>
+    ${buildBracketTeamRow(match,'home')}
+    ${buildBracketTeamRow(match,'away')}
     <div class="bracket-venue">${escHtml(match.venue)}</div>
   </div>`;
 }
