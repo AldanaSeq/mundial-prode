@@ -163,6 +163,48 @@ nav::-webkit-scrollbar{display:none;}
 .saved-flash{font-size:11px;color:var(--green);font-family:'Roboto Mono',monospace;display:none;}
 .card-venue{font-size:10px;color:var(--muted2);text-align:center;margin-top:8px;}
 
+/* KNOCKOUT BRACKET */
+.marca-bracket-wrap{display:none;margin:16px 0 18px;background:#f7faf7;border:1px solid #c9d6c9;border-radius:6px;padding:12px 12px 18px;overflow-x:auto;box-shadow:0 2px 10px rgba(20,55,35,.08);}
+.marca-bracket-wrap.active{display:block;}
+.marca-bracket-title{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:.5px;color:#2f4739;margin-bottom:4px;}
+.marca-bracket-sub{font-size:11px;color:#607468;margin-bottom:12px;}
+.marca-bracket{position:relative;display:grid;grid-template-columns:188px 188px 188px 188px 150px 188px 188px 188px 188px;gap:10px;min-width:1740px;align-items:start;}
+.marca-round{display:flex;flex-direction:column;position:relative;}
+.marca-round-title{height:22px;text-align:center;font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#3c4f43;}
+.marca-side-right .marca-round-title{direction:ltr;}
+.marca-card{position:relative;background:#eef4ee;border:1px solid #b8c8bc;border-radius:3px;padding:4px;min-height:62px;color:#1a2e22;box-shadow:0 1px 0 rgba(255,255,255,.75) inset;}
+.marca-card::after{content:'';position:absolute;top:50%;right:-11px;width:11px;border-top:2px solid #6c8a74;}
+.marca-side-right .marca-card::after{right:auto;left:-11px;}
+.marca-round-final .marca-card::after,.marca-round-semis .marca-card::after{display:none;}
+.marca-card-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:3px;font-family:'Roboto Mono',monospace;font-size:9px;color:#51695b;white-space:nowrap;}
+.marca-match-name{overflow:hidden;text-overflow:ellipsis;}
+.marca-team-row{height:23px;display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:5px;background:#f8fbf8;border:1px dashed #c2d0c5;border-radius:11px;padding:0 7px;margin-top:3px;font-size:11px;font-weight:800;line-height:1;white-space:nowrap;overflow:hidden;}
+.marca-team-row strong{overflow:hidden;text-overflow:ellipsis;}
+.marca-team-row .team-flag{font-size:13px;display:flex;align-items:center;justify-content:center;}
+.marca-score{min-width:16px;text-align:right;font-family:'Roboto Mono',monospace;font-weight:800;color:#36513e;}
+.marca-card.pending .marca-team-row{color:#64756a;}
+.marca-card.winner-home .marca-team-row:first-of-type,.marca-card.winner-away .marca-team-row:last-of-type{background:#dfeee1;border-style:solid;border-color:#91b498;}
+.marca-spacer-r32{gap:8px;}
+.marca-spacer-r16{padding-top:40px;gap:86px;}
+.marca-spacer-qf{padding-top:104px;gap:218px;}
+.marca-spacer-sf{padding-top:232px;gap:478px;}
+.marca-round-final{padding-top:402px;align-items:center;}
+.marca-round-final .marca-card{width:150px;min-height:64px;border-color:#89add0;background:#f6fbff;}
+.marca-final-label{text-align:center;font-family:'Oswald',sans-serif;color:#79b2e8;letter-spacing:4px;text-transform:uppercase;font-size:13px;margin-top:8px;}
+.marca-cup{font-size:30px;text-align:center;margin-bottom:8px;}
+.marca-pair{position:relative;display:flex;flex-direction:column;gap:8px;}
+.marca-pair::after{content:'';position:absolute;right:-10px;top:32px;bottom:32px;border-right:2px solid #6c8a74;}
+.marca-side-right .marca-pair::after{right:auto;left:-10px;}
+.marca-side-right .marca-card::before{content:'';position:absolute;top:50%;left:-11px;width:11px;border-top:2px solid #6c8a74;}
+.marca-side-right .marca-card::after{display:none;}
+.marca-side-right .marca-pair::before{content:'';position:absolute;left:-10px;top:50%;width:10px;border-top:2px solid #6c8a74;}
+.marca-pair::before{content:'';position:absolute;right:-10px;top:50%;width:10px;border-top:2px solid #6c8a74;}
+@media(max-width:720px){
+  .marca-bracket-wrap{margin-left:-6px;margin-right:-6px;padding:10px;}
+  .marca-bracket{min-width:1480px;grid-template-columns:160px 160px 160px 160px 130px 160px 160px 160px 160px;}
+  .marca-team-row{font-size:10px;}
+}
+
 /* FIXTURE */
 .fixture-list{display:flex;flex-direction:column;gap:5px;margin-bottom:4px;}
 .fix-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;transition:border-color .15s;}
@@ -1145,6 +1187,7 @@ nav{
     <div class="stat-tile"><span class="val" id="stPct">0%</span><span class="lbl">Efect.</span></div>
   </div>
   <div class="group-tabs" id="prodeGroupTabs"></div>
+  <div id="prodeBracketMount"></div>
   <div class="matches-grid" id="matchesGrid"></div>
 </div>
 
@@ -1197,6 +1240,7 @@ nav{
     <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Solo el admin puede cargar resultados. Los puntos se recalculan automáticamente y se sincronizan en la nube.</p>
     <div id="adminPlayersMount"></div>
     <div class="group-tabs" id="resultGroupTabs"></div>
+    <div id="resultBracketMount"></div>
     <div class="matches-grid" id="resultGrid"></div>
   </div>
 </div>
@@ -2184,6 +2228,101 @@ function renderPhaseAdminBoxProde(){
 }
 
 /* ── PRODE PAGE ── */
+function getMatchPublicNumber(matchId){
+  let m=String(matchId||'').match(/^R32_(\d+)$/);
+  if(m) return 72+parseInt(m[1],10);
+  m=String(matchId||'').match(/^R16_(\d+)$/);
+  if(m) return 88+parseInt(m[1],10);
+  m=String(matchId||'').match(/^QF_(\d+)$/);
+  if(m) return 96+parseInt(m[1],10);
+  m=String(matchId||'').match(/^SF_(\d+)$/);
+  if(m) return 100+parseInt(m[1],10);
+  if(matchId==='FIN') return 104;
+  if(matchId==='3RD') return 103;
+  return '';
+}
+function buildMarcaTeamRow(name,score){
+  const team=getTeam(name);
+  const scoreText=score===null||score===undefined||score===''?'':score;
+  return `<div class="marca-team-row">
+    <span class="team-flag">${flagImg(team)}</span>
+    <strong>${escHtml(name)}</strong>
+    <span class="marca-score">${escHtml(String(scoreText))}</span>
+  </div>`;
+}
+function buildMarcaCard(matchId){
+  const base=MATCH_MAP[matchId];
+  if(!base) return '';
+  const m=getMatchDisplay(base);
+  const r=state.results[matchId]||{};
+  const sc=getOfficialScore(matchId);
+  const scoreHome=sc?sc.h:'';
+  const scoreAway=sc?sc.a:'';
+  let cls='marca-card';
+  if(!sc) cls+=' pending';
+  else if(sc.h>sc.a || (sc.h===sc.a && r.penaltyWinner==='home')) cls+=' winner-home';
+  else if(sc.a>sc.h || (sc.h===sc.a && r.penaltyWinner==='away')) cls+=' winner-away';
+  return `<div class="${cls}">
+    <div class="marca-card-head">
+      <span class="marca-match-name">${escHtml(m.phase.replace(' de Final',''))} ${getMatchPublicNumber(matchId)}</span>
+      <span>${escHtml(m.date)} ${escHtml(m.time)}</span>
+    </div>
+    ${buildMarcaTeamRow(m.home,scoreHome)}
+    ${buildMarcaTeamRow(m.away,scoreAway)}
+  </div>`;
+}
+function renderMarcaPairs(ids){
+  const pairs=[];
+  for(let i=0;i<ids.length;i+=2){
+    pairs.push(`<div class="marca-pair">${ids.slice(i,i+2).map(buildMarcaCard).join('')}</div>`);
+  }
+  return pairs.join('');
+}
+function renderMarcaRound(title,ids,cls='',side='left'){
+  const sideCls=side==='right'?' marca-side-right':'';
+  return `<div class="marca-round ${cls}${sideCls}">
+    <div class="marca-round-title">${escHtml(title)}</div>
+    ${renderMarcaPairs(ids)}
+  </div>`;
+}
+function renderMarcaFinalRound(){
+  return `<div class="marca-round marca-round-final">
+    <div class="marca-cup">🏆</div>
+    ${buildMarcaCard('FIN')}
+    <div class="marca-final-label">Final</div>
+  </div>`;
+}
+function renderMarcaKnockoutBracket(){
+  const leftR32=['R32_2','R32_5','R32_1','R32_3','R32_11','R32_12','R32_9','R32_10'];
+  const leftR16=['R16_1','R16_2','R16_5','R16_6'];
+  const leftQF=['QF_1','QF_2'];
+  const leftSF=['SF_1'];
+  const rightSF=['SF_2'];
+  const rightQF=['QF_3','QF_4'];
+  const rightR16=['R16_3','R16_4','R16_7','R16_8'];
+  const rightR32=['R32_4','R32_6','R32_7','R32_8','R32_14','R32_16','R32_13','R32_15'];
+  return `<div class="marca-bracket-wrap active">
+    <div class="marca-bracket-title">Fase final</div>
+    <div class="marca-bracket-sub">Cuadro principal con partidos de eliminatorias.</div>
+    <div class="marca-bracket">
+      ${renderMarcaRound('Dieciseisavos',leftR32,'marca-spacer-r32')}
+      ${renderMarcaRound('Octavos',leftR16,'marca-spacer-r16')}
+      ${renderMarcaRound('Cuartos',leftQF,'marca-spacer-qf')}
+      ${renderMarcaRound('Semifinal',leftSF,'marca-spacer-sf')}
+      ${renderMarcaFinalRound()}
+      ${renderMarcaRound('Semifinal',rightSF,'marca-spacer-sf','right')}
+      ${renderMarcaRound('Cuartos',rightQF,'marca-spacer-qf','right')}
+      ${renderMarcaRound('Octavos',rightR16,'marca-spacer-r16','right')}
+      ${renderMarcaRound('Dieciseisavos',rightR32,'marca-spacer-r32','right')}
+    </div>
+  </div>`;
+}
+function renderMarcaBracketMount(containerId,activeTab){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML=PHASE_MAP[activeTab]?renderMarcaKnockoutBracket():'';
+}
+
 function renderProde(){
   ensureEnabledProdeTab();
   updatePromoSections();
@@ -2204,6 +2343,7 @@ function renderProde(){
     else notice.innerHTML=getPhaseNotice();
   }
   renderGroupTabs('prodeGroupTabs',ALL_TABS,currentProdeTab,setProdeTab,false);
+  renderMarcaBracketMount('prodeBracketMount',currentProdeTab);
   renderPlayerChips();
   renderMatchCards();
   updateHeaderScore();
@@ -2212,6 +2352,7 @@ function setProdeTab(tab){
   if(!isTabEnabled(tab)){showToast('Esta fase todavía no está habilitada','error');return;}
   currentProdeTab=tab;
   renderGroupTabs('prodeGroupTabs',ALL_TABS,currentProdeTab,setProdeTab,false);
+  renderMarcaBracketMount('prodeBracketMount',currentProdeTab);
   renderMatchCards();
 }
 function getMatchesForTab(tab){
@@ -2701,6 +2842,7 @@ function setResultTab(tab){if(!isTabEnabled(tab)){showToast('Primero habilitá e
 function renderResultCards(){
   const grid=document.getElementById('resultGrid');
   if(!grid) return;
+  renderMarcaBracketMount('resultBracketMount',currentResultTab);
   const matches=getMatchesForTabDisplay(currentResultTab);
   if(!matches.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="icon">📭</div>Sin partidos</div>';return;}
   grid.innerHTML=matches.map(buildResultCard).join('');
