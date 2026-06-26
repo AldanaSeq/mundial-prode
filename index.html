@@ -1425,14 +1425,14 @@ nav{
 .marca-spacer-r16 .marca-card:nth-child(3){grid-row:7 / span 2!important;}
 .marca-spacer-r16 .marca-card:nth-child(4){grid-row:11 / span 2!important;}
 .marca-spacer-r16 .marca-card:nth-child(5){grid-row:15 / span 2!important;}
-.marca-spacer-r16 .marca-card{top:18px!important;}
+.marca-spacer-r16 .marca-card{top:0!important;}
 .marca-spacer-qf{padding-top:0!important;}
 .marca-spacer-qf .marca-card:nth-child(2){grid-row:5 / span 2!important;}
 .marca-spacer-qf .marca-card:nth-child(3){grid-row:13 / span 2!important;}
-.marca-spacer-qf .marca-card{top:18px!important;}
+.marca-spacer-qf .marca-card{top:0!important;}
 .marca-spacer-sf{padding-top:0!important;}
 .marca-spacer-sf .marca-card:nth-child(2){grid-row:9 / span 2!important;}
-.marca-spacer-sf .marca-card{top:18px!important;}
+.marca-spacer-sf .marca-card{top:0!important;}
 .marca-round-final{
   display:grid!important;
   grid-template-rows:34px repeat(16,44px)!important;
@@ -1442,7 +1442,7 @@ nav{
 .marca-round-final .marca-card{
   grid-row:9 / span 2!important;
   width:150px!important;
-  top:18px!important;
+  top:0!important;
 }
 .marca-cup{
   grid-row:7!important;
@@ -1471,11 +1471,15 @@ nav{
 }
 .marca-connector-path{
   fill:none;
-  stroke:rgba(91,122,148,.62);
+  stroke:#8FB8D8;
   stroke-width:3;
   stroke-linecap:round;
   stroke-linejoin:round;
-  filter:drop-shadow(0 2px 2px rgba(30,58,95,.06));
+  filter:drop-shadow(0 2px 2px rgba(30,58,95,.10));
+}
+.marca-connector-path.final-link{
+  stroke:#D4AF37;
+  stroke-width:3.25;
 }
 .marca-side-right .marca-card::before,
 .marca-pair::before,
@@ -2798,6 +2802,19 @@ function drawMarcaBracketConnectors(scope){
   };
   const byId=(id)=>bracket.querySelector(`.marca-card[data-match-id="${id}"]`);
   const paths=[];
+  const roundedPath=(fromX,fromY,jointX,toX,toY)=>{
+    const r=Math.min(12,Math.abs(toY-fromY)/2,Math.abs(toX-jointX)/2||12);
+    if(Math.abs(toY-fromY)<2) return `M ${fromX} ${fromY} H ${toX}`;
+    const dir=toY>fromY?1:-1;
+    return [
+      `M ${fromX} ${fromY}`,
+      `H ${jointX-r}`,
+      `Q ${jointX} ${fromY} ${jointX} ${fromY+(dir*r)}`,
+      `V ${toY-(dir*r)}`,
+      `Q ${jointX} ${toY} ${jointX+(toX>jointX?r:-r)} ${toY}`,
+      `H ${toX}`
+    ].join(' ');
+  };
   getMarcaBracketLinks().forEach(([sources,target])=>{
     const targetEl=byId(target);
     const sourceEls=sources.map(byId).filter(Boolean);
@@ -2805,25 +2822,29 @@ function drawMarcaBracketConnectors(scope){
     const t=mid(targetEl);
     const rightSide=t.left < mid(sourceEls[0]).left;
     const targetX=rightSide?t.right:t.left;
-    const sourceX=rightSide?Math.min(...sourceEls.map(el=>mid(el).left)):Math.max(...sourceEls.map(el=>mid(el).right));
-    const jointX=sourceX+(targetX-sourceX)*0.5;
-    const ys=sourceEls.map(el=>mid(el).y);
-    const minY=Math.min(...ys), maxY=Math.max(...ys);
+    const sourceX=rightSide
+      ? Math.min(...sourceEls.map(el=>mid(el).left))
+      : Math.max(...sourceEls.map(el=>mid(el).right));
+    const jointX=sourceX+(targetX-sourceX)*0.52;
+    const finalClass=target==='FIN'?' final-link':'';
     sourceEls.forEach(el=>{
       const p=mid(el);
       const startX=rightSide?p.left:p.right;
-      paths.push(`M ${startX} ${p.y} H ${jointX}`);
+      paths.push(`<path class="marca-connector-path${finalClass}" d="${roundedPath(startX,p.y,jointX,targetX,t.y)}"></path>`);
     });
-    if(sourceEls.length>1) paths.push(`M ${jointX} ${minY} V ${maxY}`);
-    paths.push(`M ${jointX} ${t.y} H ${targetX}`);
   });
-  svg.innerHTML=paths.map(d=>`<path class="marca-connector-path" d="${d}"></path>`).join('');
+  svg.innerHTML=paths.join('');
 }
 function renderMarcaBracketMount(containerId,activeTab){
   const el=document.getElementById(containerId);
   if(!el) return;
   el.innerHTML=PHASE_MAP[activeTab]?renderMarcaKnockoutBracket():'';
-  if(PHASE_MAP[activeTab]) requestAnimationFrame(()=>drawMarcaBracketConnectors(el));
+  if(PHASE_MAP[activeTab]){
+    requestAnimationFrame(()=>drawMarcaBracketConnectors(el));
+    setTimeout(()=>drawMarcaBracketConnectors(el),120);
+    const wrap=el.querySelector('.marca-bracket-wrap');
+    if(wrap) wrap.addEventListener('scroll',()=>drawMarcaBracketConnectors(el),{passive:true});
+  }
 }
 let marcaBracketResizeTimer=null;
 window.addEventListener('resize',()=>{
