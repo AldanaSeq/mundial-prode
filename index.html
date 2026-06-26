@@ -1471,16 +1471,16 @@ nav{
 }
 .marca-connector-path{
   fill:none;
-  stroke:#8FB8D8;
-  stroke-width:3;
+  stroke:#A9B7C6;
+  stroke-width:2;
   stroke-linecap:round;
   stroke-linejoin:round;
-  opacity:.95;
-  filter:drop-shadow(0 2px 2px rgba(30,58,95,.14));
+  opacity:.9;
+  filter:drop-shadow(0 1px 1px rgba(30,58,95,.10));
 }
 .marca-connector-path.final-link{
-  stroke:#D4AF37;
-  stroke-width:3.25;
+  stroke:#A9B7C6;
+  stroke-width:2;
 }
 .marca-side-right .marca-card::before,
 .marca-pair::before,
@@ -2805,25 +2805,22 @@ function drawMarcaBracketConnectors(scope){
   const paths=[];
   const bracketPath=(fromA,fromB,to,rightSide)=>{
     const edgeGap=10;
-    const bridgeGap=10;
     const sourceX=rightSide?Math.min(fromA.left,fromB.left):Math.max(fromA.right,fromB.right);
     const targetX=rightSide?to.right:to.left;
     const jointX=rightSide?sourceX-edgeGap:sourceX+edgeGap;
-    const bridgeX=rightSide?targetX+bridgeGap:targetX-bridgeGap;
-    const dir=rightSide?-1:1;
-    const y1=fromA.y, y2=fromB.y, ty=to.y;
+    const junctionY=(fromA.y+fromB.y)/2;
+    const y1=fromA.y, y2=fromB.y;
     return [
       `M ${sourceX} ${y1} H ${jointX}`,
       `M ${sourceX} ${y2} H ${jointX}`,
       `M ${jointX} ${Math.min(y1,y2)} V ${Math.max(y1,y2)}`,
-      `M ${jointX} ${ty} H ${bridgeX}`,
-      `Q ${targetX-(dir*bridgeGap*.45)} ${ty} ${targetX} ${ty}`
+      `M ${jointX} ${junctionY} H ${targetX}`
     ].join(' ');
   };
   const singlePath=(from,to,rightSide)=>{
     const sourceX=rightSide?from.left:from.right;
     const targetX=rightSide?to.right:to.left;
-    const jointX=sourceX+(targetX-sourceX)*0.5;
+    const jointX=rightSide?sourceX-10:sourceX+10;
     return `M ${sourceX} ${from.y} H ${jointX} V ${to.y} H ${targetX}`;
   };
   getMarcaBracketLinks().forEach(([sources,target])=>{
