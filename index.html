@@ -1566,6 +1566,75 @@ nav{
   .marca-card{height:76px!important;min-height:76px!important;}
   .marca-team-row{font-size:9px!important;grid-template-columns:22px 1fr 14px!important;}
 }
+
+/* BRACKET CLEAN COLUMN LAYOUT */
+.marca-bracket{
+  align-items:flex-start!important;
+}
+.marca-round{
+  display:flex!important;
+  flex-direction:column!important;
+  grid-template-rows:none!important;
+  row-gap:0!important;
+}
+.marca-round-title{
+  flex:0 0 auto!important;
+}
+.marca-pair{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:10px!important;
+  position:relative!important;
+  align-self:stretch!important;
+}
+.marca-spacer-r32{
+  padding-top:0!important;
+  gap:12px!important;
+}
+.marca-spacer-r16{
+  padding-top:86px!important;
+  gap:176px!important;
+}
+.marca-spacer-qf{
+  padding-top:224px!important;
+  gap:0!important;
+}
+.marca-spacer-sf{
+  padding-top:388px!important;
+  gap:0!important;
+}
+.marca-round-final{
+  display:flex!important;
+  flex-direction:column!important;
+  padding-top:324px!important;
+  align-items:center!important;
+}
+.marca-round-final .marca-cup,
+.marca-round-final .marca-card,
+.marca-round-final .marca-final-label{
+  grid-row:auto!important;
+}
+.marca-spacer-r32 .marca-pair,
+.marca-spacer-r16 .marca-pair,
+.marca-spacer-qf .marca-pair,
+.marca-spacer-sf .marca-pair{
+  grid-row:auto!important;
+}
+.marca-card{
+  flex:0 0 80px!important;
+  width:100%!important;
+}
+.marca-round-final .marca-card{
+  width:150px!important;
+}
+.marca-card::after,
+.marca-side-right .marca-card::before,
+.marca-pair::before,
+.marca-pair::after,
+.marca-side-right .marca-pair::before,
+.marca-side-right .marca-pair::after{
+  display:none!important;
+}
 </style>
 </head>
 <body>
