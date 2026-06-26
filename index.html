@@ -2576,35 +2576,30 @@ function drawMarcaBracketConnectors(scope){
   const byId=(id)=>bracket.querySelector(`.marca-card[data-match-id="${id}"]`);
   const paths=[];
   const bracketPath=(fromA,fromB,to,rightSide)=>{
-    const edgeGap=12;
-    const sourceX=rightSide?Math.min(fromA.left,fromB.left):Math.max(fromA.right,fromB.right);
+    const laneGap=14;
+    const sourceX=rightSide?fromA.left:fromA.right;
     const targetX=rightSide?to.right:to.left;
-    const jointX=rightSide?sourceX-edgeGap:sourceX+edgeGap;
-    const junctionY=(fromA.y+fromB.y)/2;
+    const jointX=rightSide?sourceX-laneGap:sourceX+laneGap;
     const y1=fromA.y, y2=fromB.y;
-    const targetStub=rightSide?targetX+edgeGap:targetX-edgeGap;
+    const junctionY=(y1+y2)/2;
     return [
       `M ${sourceX} ${y1} H ${jointX}`,
       `M ${sourceX} ${y2} H ${jointX}`,
       `M ${jointX} ${Math.min(y1,y2)} V ${Math.max(y1,y2)}`,
-      `M ${jointX} ${junctionY} H ${targetStub}`,
-      `M ${targetStub} ${Math.min(junctionY,to.y)} V ${Math.max(junctionY,to.y)}`,
-      `M ${targetStub} ${to.y} H ${targetX}`
+      `M ${jointX} ${junctionY} H ${targetX}`
     ].join(' ');
   };
   const singlePath=(from,to,rightSide)=>{
     const sourceX=rightSide?from.left:from.right;
     const targetX=rightSide?to.right:to.left;
-    const jointX=rightSide?sourceX-12:sourceX+12;
+    const jointX=rightSide?sourceX-14:sourceX+14;
     return `M ${sourceX} ${from.y} H ${jointX} V ${to.y} H ${targetX}`;
-  };
-  getMarcaBracketLinks().forEach(([sources,target])=>{
+  };  getMarcaBracketLinks().forEach(([sources,target])=>{
     const targetEl=byId(target);
     const sourceEls=sources.map(byId).filter(Boolean);
     if(!targetEl||!sourceEls.length) return;
     const t=mid(targetEl);
-    const rightSide=t.left < mid(sourceEls[0]).left;
-    const targetX=rightSide?t.right:t.left;
+    const first=mid(sourceEls[0]);`r`n    const rightSide=((t.left+t.right)/2) < ((first.left+first.right)/2);
     const finalClass=target==='FIN'?' final-link':'';
     const d=sourceEls.length>1
       ? bracketPath(mid(sourceEls[0]),mid(sourceEls[1]),t,rightSide)
