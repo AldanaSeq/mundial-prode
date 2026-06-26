@@ -164,45 +164,302 @@ nav::-webkit-scrollbar{display:none;}
 .card-venue{font-size:10px;color:var(--muted2);text-align:center;margin-top:8px;}
 
 /* KNOCKOUT BRACKET */
-.marca-bracket-wrap{display:none;margin:16px 0 18px;background:#f7faf7;border:1px solid #c9d6c9;border-radius:6px;padding:12px 12px 18px;overflow-x:auto;box-shadow:0 2px 10px rgba(20,55,35,.08);}
-.marca-bracket-wrap.active{display:block;}
-.marca-bracket-title{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:.5px;color:#2f4739;margin-bottom:4px;}
-.marca-bracket-sub{font-size:11px;color:#607468;margin-bottom:12px;}
-.marca-bracket{position:relative;display:grid;grid-template-columns:188px 188px 188px 188px 150px 188px 188px 188px 188px;gap:10px;min-width:1740px;align-items:start;}
-.marca-round{display:flex;flex-direction:column;position:relative;}
-.marca-round-title{height:22px;text-align:center;font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#3c4f43;}
+.marca-bracket-wrap{
+  display:none;
+  margin:18px 0 22px;
+  padding:18px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  background:
+    radial-gradient(circle at 12% 8%,rgba(168,216,255,.38),transparent 30%),
+    linear-gradient(135deg,rgba(248,252,255,.96),rgba(238,247,255,.78));
+  border:1px solid #DDEAF5;
+  border-radius:20px;
+  box-shadow:0 18px 42px rgba(30,58,95,.12);
+  scrollbar-color:#A8D8FF rgba(221,234,245,.65);
+  scrollbar-width:thin;
+}
+.marca-bracket-wrap.active{
+  display:block;
+  animation:bracketFadeUp .28s ease both;
+}
+.marca-bracket-wrap::-webkit-scrollbar{height:8px;}
+.marca-bracket-wrap::-webkit-scrollbar-track{background:rgba(221,234,245,.7);border-radius:999px;}
+.marca-bracket-wrap::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#A8D8FF,#D4AF37);border-radius:999px;}
+.marca-bracket-title{
+  font-family:'Poppins','Inter',sans-serif;
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:.2px;
+  color:#1E3A5F;
+  margin-bottom:4px;
+}
+.marca-bracket-sub{
+  font-family:'Inter',sans-serif;
+  font-size:12px;
+  font-weight:400;
+  color:#6B7A90;
+  margin-bottom:16px;
+}
+.marca-bracket{
+  position:relative;
+  display:grid;
+  grid-template-columns:224px 224px 224px 224px 176px 224px 224px 224px 224px;
+  gap:18px;
+  min-width:2080px;
+  align-items:start;
+  padding:2px 6px 8px;
+}
+.marca-round{
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+.marca-round-title{
+  min-height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:12px;
+  padding:8px 10px;
+  background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(168,216,255,.34));
+  border:1px solid rgba(221,234,245,.95);
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(30,58,95,.08);
+  font-family:'Poppins','Inter',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.9px;
+  color:#1E3A5F;
+}
+.marca-round-title::before{
+  content:'⚽';
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:rgba(212,175,55,.16);
+  color:#D4AF37;
+  font-size:10px;
+}
 .marca-side-right .marca-round-title{direction:ltr;}
-.marca-card{position:relative;background:#eef4ee;border:1px solid #b8c8bc;border-radius:3px;padding:4px;min-height:62px;color:#1a2e22;box-shadow:0 1px 0 rgba(255,255,255,.75) inset;}
-.marca-card::after{content:'';position:absolute;top:50%;right:-11px;width:11px;border-top:2px solid #6c8a74;}
-.marca-side-right .marca-card::after{right:auto;left:-11px;}
+.marca-card{
+  position:relative;
+  min-height:92px;
+  padding:10px;
+  color:#1E3A5F;
+  background:rgba(255,255,255,.76);
+  border:1px solid rgba(221,234,245,.98);
+  border-radius:14px;
+  box-shadow:0 10px 26px rgba(30,58,95,.10), inset 0 1px 0 rgba(255,255,255,.85);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease,background .24s ease;
+}
+.marca-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(168,216,255,.95);
+  background:rgba(255,255,255,.9);
+  box-shadow:0 16px 36px rgba(30,58,95,.16),0 0 0 3px rgba(168,216,255,.22);
+}
+.marca-card::after{
+  content:'';
+  position:absolute;
+  top:50%;
+  right:-19px;
+  width:19px;
+  border-top:3px solid rgba(107,122,144,.32);
+  transition:border-color .24s ease,filter .24s ease;
+}
+.marca-card:hover::after,.marca-pair:hover::before,.marca-pair:hover::after{
+  border-color:rgba(212,175,55,.72);
+  filter:drop-shadow(0 0 6px rgba(212,175,55,.22));
+}
+.marca-side-right .marca-card::after{right:auto;left:-19px;}
 .marca-round-final .marca-card::after,.marca-round-semis .marca-card::after{display:none;}
-.marca-card-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:3px;font-family:'Roboto Mono',monospace;font-size:9px;color:#51695b;white-space:nowrap;}
-.marca-match-name{overflow:hidden;text-overflow:ellipsis;}
-.marca-team-row{height:23px;display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:5px;background:#f8fbf8;border:1px dashed #c2d0c5;border-radius:11px;padding:0 7px;margin-top:3px;font-size:11px;font-weight:800;line-height:1;white-space:nowrap;overflow:hidden;}
-.marca-team-row strong{overflow:hidden;text-overflow:ellipsis;}
-.marca-team-row .team-flag{font-size:13px;display:flex;align-items:center;justify-content:center;}
-.marca-score{min-width:16px;text-align:right;font-family:'Roboto Mono',monospace;font-weight:800;color:#36513e;}
-.marca-card.pending .marca-team-row{color:#64756a;}
-.marca-card.winner-home .marca-team-row:first-of-type,.marca-card.winner-away .marca-team-row:last-of-type{background:#dfeee1;border-style:solid;border-color:#91b498;}
-.marca-spacer-r32{gap:8px;}
-.marca-spacer-r16{padding-top:40px;gap:86px;}
-.marca-spacer-qf{padding-top:104px;gap:218px;}
-.marca-spacer-sf{padding-top:232px;gap:478px;}
-.marca-round-final{padding-top:402px;align-items:center;}
-.marca-round-final .marca-card{width:150px;min-height:64px;border-color:#89add0;background:#f6fbff;}
-.marca-final-label{text-align:center;font-family:'Oswald',sans-serif;color:#79b2e8;letter-spacing:4px;text-transform:uppercase;font-size:13px;margin-top:8px;}
-.marca-cup{font-size:30px;text-align:center;margin-bottom:8px;}
-.marca-pair{position:relative;display:flex;flex-direction:column;gap:8px;}
-.marca-pair::after{content:'';position:absolute;right:-10px;top:32px;bottom:32px;border-right:2px solid #6c8a74;}
-.marca-side-right .marca-pair::after{right:auto;left:-10px;}
-.marca-side-right .marca-card::before{content:'';position:absolute;top:50%;left:-11px;width:11px;border-top:2px solid #6c8a74;}
+.marca-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+  padding-bottom:7px;
+  border-bottom:1px solid rgba(221,234,245,.82);
+  font-family:'Inter',sans-serif;
+  font-size:10px;
+  font-weight:400;
+  color:#6B7A90;
+  white-space:nowrap;
+}
+.marca-match-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#D4AF37;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+}
+.marca-team-row{
+  min-height:30px;
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+  padding:5px 8px;
+  background:rgba(248,252,255,.88);
+  border:1px solid rgba(221,234,245,.82);
+  border-radius:11px;
+  font-family:'Poppins','Inter',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  transition:background .22s ease,border-color .22s ease,transform .22s ease;
+}
+.marca-card:hover .marca-team-row{border-color:rgba(168,216,255,.86);}
+.marca-team-row strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#1E3A5F;
+  font-weight:600;
+}
+.marca-team-row .team-flag{
+  width:28px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  line-height:0;
+  font-size:0;
+}
+.marca-team-row .team-flag img,.marca-team-row .team-flag .flag-img{
+  width:26px!important;
+  height:18px!important;
+  min-width:26px!important;
+  max-width:26px!important;
+  object-fit:cover;
+  border-radius:4px!important;
+  border:1px solid rgba(30,58,95,.10);
+  box-shadow:0 3px 8px rgba(30,58,95,.12)!important;
+  margin:0!important;
+}
+.marca-score{
+  min-width:18px;
+  text-align:right;
+  font-family:'Inter',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  color:#1E3A5F;
+}
+.marca-card.pending .marca-team-row{color:#6B7A90;}
+.marca-card.winner-home .marca-team-row:first-of-type,.marca-card.winner-away .marca-team-row:last-of-type{
+  background:linear-gradient(135deg,rgba(212,175,55,.18),rgba(168,216,255,.22));
+  border-color:rgba(212,175,55,.42);
+}
+.marca-spacer-r32{gap:14px;}
+.marca-spacer-r16{padding-top:66px;gap:128px;}
+.marca-spacer-qf{padding-top:180px;gap:336px;}
+.marca-spacer-sf{padding-top:410px;gap:790px;}
+.marca-round-final{padding-top:706px;align-items:center;}
+.marca-round-final .marca-card{
+  width:176px;
+  min-height:96px;
+  border-color:rgba(168,216,255,.9);
+  background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(248,252,255,.72));
+  box-shadow:0 16px 36px rgba(30,58,95,.14),0 0 0 4px rgba(168,216,255,.18);
+}
+.marca-final-label{
+  margin-top:12px;
+  text-align:center;
+  font-family:'Poppins','Inter',sans-serif;
+  color:#D4AF37;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  font-size:12px;
+  font-weight:700;
+}
+.marca-cup{
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  margin:0 auto 12px;
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(212,175,55,.24),rgba(168,216,255,.24));
+  box-shadow:0 12px 28px rgba(30,58,95,.12);
+  font-size:28px;
+}
+.marca-pair{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.marca-pair::after{
+  content:'';
+  position:absolute;
+  right:-18px;
+  top:46px;
+  bottom:46px;
+  border-right:3px solid rgba(107,122,144,.32);
+  transition:border-color .24s ease,filter .24s ease;
+}
+.marca-side-right .marca-pair::after{right:auto;left:-18px;}
+.marca-side-right .marca-card::before{
+  content:'';
+  position:absolute;
+  top:50%;
+  left:-19px;
+  width:19px;
+  border-top:3px solid rgba(107,122,144,.32);
+  transition:border-color .24s ease,filter .24s ease;
+}
 .marca-side-right .marca-card::after{display:none;}
-.marca-side-right .marca-pair::before{content:'';position:absolute;left:-10px;top:50%;width:10px;border-top:2px solid #6c8a74;}
-.marca-pair::before{content:'';position:absolute;right:-10px;top:50%;width:10px;border-top:2px solid #6c8a74;}
+.marca-side-right .marca-card:hover::before{border-color:rgba(212,175,55,.72);filter:drop-shadow(0 0 6px rgba(212,175,55,.22));}
+.marca-side-right .marca-pair::before{
+  content:'';
+  position:absolute;
+  left:-18px;
+  top:50%;
+  width:18px;
+  border-top:3px solid rgba(107,122,144,.32);
+  transition:border-color .24s ease,filter .24s ease;
+}
+.marca-pair::before{
+  content:'';
+  position:absolute;
+  right:-18px;
+  top:50%;
+  width:18px;
+  border-top:3px solid rgba(107,122,144,.32);
+  transition:border-color .24s ease,filter .24s ease;
+}
+@keyframes bracketFadeUp{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:none;}
+}
 @media(max-width:720px){
-  .marca-bracket-wrap{margin-left:-6px;margin-right:-6px;padding:10px;}
-  .marca-bracket{min-width:1480px;grid-template-columns:160px 160px 160px 160px 130px 160px 160px 160px 160px;}
-  .marca-team-row{font-size:10px;}
+  .marca-bracket-wrap{
+    margin-left:-10px;
+    margin-right:-10px;
+    padding:14px;
+    border-radius:16px;
+  }
+  .marca-bracket{
+    min-width:1740px;
+    grid-template-columns:188px 188px 188px 188px 150px 188px 188px 188px 188px;
+    gap:16px;
+  }
+  .marca-round-title{font-size:11px;min-height:36px;padding:7px 8px;}
+  .marca-card{min-height:84px;padding:8px;border-radius:13px;}
+  .marca-team-row{min-height:28px;font-size:11px;grid-template-columns:26px 1fr auto;}
 }
 
 /* FIXTURE */
@@ -894,6 +1151,8 @@ nav{
   vertical-align:middle;
 }
 .team-flag .flag-img{width:58px;height:40px;border-radius:9px;}
+.marca-team-row .team-flag{width:28px;height:20px;font-size:0;line-height:0;overflow:hidden;}
+.marca-team-row .team-flag .flag-img{width:26px!important;height:18px!important;min-width:26px!important;max-width:26px!important;border-radius:4px!important;box-shadow:0 3px 8px rgba(30,58,95,.12)!important;margin:0!important;object-fit:cover;}
 .fix-flag .flag-img,.flag-inline .flag-img,.flag-btn .flag-img{width:20px;height:14px;border-radius:3px;box-shadow:none;margin-right:5px;}
 .flag-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;}
 .flag-inline{display:inline-flex;align-items:center;gap:5px;}
