@@ -2811,11 +2811,14 @@ function drawMarcaBracketConnectors(scope){
     const jointX=rightSide?sourceX-edgeGap:sourceX+edgeGap;
     const junctionY=(fromA.y+fromB.y)/2;
     const y1=fromA.y, y2=fromB.y;
+    const targetStub=rightSide?targetX+edgeGap:targetX-edgeGap;
     return [
       `M ${sourceX} ${y1} H ${jointX}`,
       `M ${sourceX} ${y2} H ${jointX}`,
       `M ${jointX} ${Math.min(y1,y2)} V ${Math.max(y1,y2)}`,
-      `M ${jointX} ${junctionY} H ${targetX}`
+      `M ${jointX} ${junctionY} H ${targetStub}`,
+      `M ${targetStub} ${Math.min(junctionY,to.y)} V ${Math.max(junctionY,to.y)}`,
+      `M ${targetStub} ${to.y} H ${targetX}`
     ].join(' ');
   };
   const singlePath=(from,to,rightSide)=>{
