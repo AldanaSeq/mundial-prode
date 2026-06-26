@@ -1487,6 +1487,78 @@ nav{
   border-color:rgba(212,175,55,.68)!important;
   filter:none!important;
 }
+
+/* BRACKET ALIGNMENT RESET */
+.marca-bracket{
+  --slot:52px;
+  --card-h:80px;
+  align-items:start!important;
+}
+.marca-round{
+  display:grid!important;
+  grid-template-rows:34px repeat(16,var(--slot))!important;
+  row-gap:0!important;
+  position:relative!important;
+}
+.marca-round-title{
+  grid-row:1!important;
+  margin-bottom:0!important;
+}
+.marca-pair{
+  display:contents!important;
+}
+.marca-card{
+  align-self:center!important;
+  margin:0!important;
+}
+.marca-spacer-r32{padding-top:0!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(1){grid-row:2 / span 2!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(2){grid-row:4 / span 2!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(3){grid-row:6 / span 2!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(4){grid-row:8 / span 2!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(5){grid-row:10 / span 2!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(6){grid-row:12 / span 2!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(7){grid-row:14 / span 2!important;}
+.marca-spacer-r32 .marca-card:nth-of-type(8){grid-row:16 / span 2!important;}
+.marca-spacer-r16{padding-top:0!important;}
+.marca-spacer-r16 .marca-card:nth-of-type(1){grid-row:3 / span 2!important;}
+.marca-spacer-r16 .marca-card:nth-of-type(2){grid-row:7 / span 2!important;}
+.marca-spacer-r16 .marca-card:nth-of-type(3){grid-row:11 / span 2!important;}
+.marca-spacer-r16 .marca-card:nth-of-type(4){grid-row:15 / span 2!important;}
+.marca-spacer-qf{padding-top:0!important;}
+.marca-spacer-qf .marca-card:nth-of-type(1){grid-row:5 / span 2!important;}
+.marca-spacer-qf .marca-card:nth-of-type(2){grid-row:13 / span 2!important;}
+.marca-spacer-sf{padding-top:0!important;}
+.marca-spacer-sf .marca-card:nth-of-type(1){grid-row:9 / span 2!important;}
+.marca-round-final{
+  display:grid!important;
+  grid-template-rows:34px repeat(16,var(--slot))!important;
+  padding-top:0!important;
+  align-items:start!important;
+}
+.marca-round-final .marca-cup{
+  grid-row:7!important;
+  align-self:end!important;
+  justify-self:center!important;
+}
+.marca-round-final .marca-card{
+  grid-row:9 / span 2!important;
+  align-self:center!important;
+  justify-self:center!important;
+}
+.marca-round-final .marca-final-label{
+  grid-row:11!important;
+  align-self:start!important;
+  justify-self:center!important;
+}
+.marca-card::after,
+.marca-side-right .marca-card::before,
+.marca-pair::before,
+.marca-pair::after,
+.marca-side-right .marca-pair::before,
+.marca-side-right .marca-pair::after{
+  display:none!important;
+}
 @media(max-width:720px){
   .marca-bracket-wrap{padding:12px!important;margin-left:-10px!important;margin-right:-10px!important;}
   .marca-bracket{
