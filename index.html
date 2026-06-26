@@ -1307,6 +1307,7 @@ nav{
   min-width:1690px!important;
   align-items:start!important;
   padding:0 4px 10px!important;
+  position:relative!important;
 }
 .marca-round{
   display:grid!important;
@@ -1459,29 +1460,22 @@ nav{
   font-size:10px!important;
   letter-spacing:3px!important;
 }
-.marca-card::after{
-  content:''!important;
-  display:block!important;
+.marca-connectors{
   position:absolute!important;
-  top:50%!important;
-  right:-15px!important;
-  width:15px!important;
-  height:2px!important;
-  border:0!important;
-  background:rgba(168,190,208,.72)!important;
-  transform:translateY(-50%)!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
   pointer-events:none!important;
+  overflow:visible!important;
   z-index:1!important;
 }
-.marca-side-right .marca-card::after{
-  right:auto!important;
-  left:-15px!important;
-}
-.marca-round-final .marca-card::after{
-  display:none!important;
-}
-.marca-card:hover::after{
-  background:rgba(212,175,55,.72)!important;
+.marca-connector-path{
+  fill:none;
+  stroke:rgba(91,122,148,.62);
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 2px 2px rgba(30,58,95,.06));
 }
 .marca-side-right .marca-card::before,
 .marca-pair::before,
@@ -2725,7 +2719,7 @@ function buildMarcaCard(matchId){
   if(!sc) cls+=' pending';
   else if(sc.h>sc.a || (sc.h===sc.a && r.penaltyWinner==='home')) cls+=' winner-home';
   else if(sc.a>sc.h || (sc.h===sc.a && r.penaltyWinner==='away')) cls+=' winner-away';
-  return `<div class="${cls}">
+  return `<div class="${cls}" data-match-id="${escAttr(matchId)}">
     <div class="marca-card-head">
       <span class="marca-match-name">${escHtml(m.phase.replace(' de Final',''))} ${getMatchPublicNumber(matchId)}</span>
       <span>${escHtml(m.date)} ${escHtml(m.time)}</span>
@@ -2761,6 +2755,7 @@ function renderMarcaKnockoutBracket(){
     <div class="marca-bracket-title">Fase final</div>
     <div class="marca-bracket-sub">Cuadro principal con partidos de eliminatorias.</div>
     <div class="marca-bracket">
+      <svg class="marca-connectors" aria-hidden="true"></svg>
       ${renderMarcaRound('Dieciseisavos',leftR32,'marca-spacer-r32')}
       ${renderMarcaRound('Octavos',leftR16,'marca-spacer-r16')}
       ${renderMarcaRound('Cuartos',leftQF,'marca-spacer-qf')}
@@ -2773,11 +2768,70 @@ function renderMarcaKnockoutBracket(){
     </div>
   </div>`;
 }
+function getMarcaBracketLinks(){
+  return [
+    [['R32_2','R32_5'],'R16_1'], [['R32_1','R32_3'],'R16_2'],
+    [['R32_11','R32_12'],'R16_5'], [['R32_9','R32_10'],'R16_6'],
+    [['R16_1','R16_2'],'QF_1'], [['R16_5','R16_6'],'QF_2'],
+    [['QF_1','QF_2'],'SF_1'], [['SF_1'],'FIN'],
+    [['R32_4','R32_6'],'R16_3'], [['R32_7','R32_8'],'R16_4'],
+    [['R32_14','R32_16'],'R16_7'], [['R32_13','R32_15'],'R16_8'],
+    [['R16_3','R16_4'],'QF_3'], [['R16_7','R16_8'],'QF_4'],
+    [['QF_3','QF_4'],'SF_2'], [['SF_2'],'FIN']
+  ];
+}
+function drawMarcaBracketConnectors(scope){
+  const bracket=scope.querySelector('.marca-bracket');
+  const svg=scope.querySelector('.marca-connectors');
+  if(!bracket||!svg) return;
+  const b=bracket.getBoundingClientRect();
+  svg.setAttribute('viewBox',`0 0 ${bracket.scrollWidth} ${bracket.scrollHeight}`);
+  svg.setAttribute('width',bracket.scrollWidth);
+  svg.setAttribute('height',bracket.scrollHeight);
+  const mid=(el)=>{
+    const r=el.getBoundingClientRect();
+    return {
+      left:r.left-b.left+bracket.scrollLeft,
+      right:r.right-b.left+bracket.scrollLeft,
+      y:r.top-b.top+bracket.scrollTop+(r.height/2)
+    };
+  };
+  const byId=(id)=>bracket.querySelector(`.marca-card[data-match-id="${id}"]`);
+  const paths=[];
+  getMarcaBracketLinks().forEach(([sources,target])=>{
+    const targetEl=byId(target);
+    const sourceEls=sources.map(byId).filter(Boolean);
+    if(!targetEl||!sourceEls.length) return;
+    const t=mid(targetEl);
+    const rightSide=t.left < mid(sourceEls[0]).left;
+    const targetX=rightSide?t.right:t.left;
+    const sourceX=rightSide?Math.min(...sourceEls.map(el=>mid(el).left)):Math.max(...sourceEls.map(el=>mid(el).right));
+    const jointX=sourceX+(targetX-sourceX)*0.5;
+    const ys=sourceEls.map(el=>mid(el).y);
+    const minY=Math.min(...ys), maxY=Math.max(...ys);
+    sourceEls.forEach(el=>{
+      const p=mid(el);
+      const startX=rightSide?p.left:p.right;
+      paths.push(`M ${startX} ${p.y} H ${jointX}`);
+    });
+    if(sourceEls.length>1) paths.push(`M ${jointX} ${minY} V ${maxY}`);
+    paths.push(`M ${jointX} ${t.y} H ${targetX}`);
+  });
+  svg.innerHTML=paths.map(d=>`<path class="marca-connector-path" d="${d}"></path>`).join('');
+}
 function renderMarcaBracketMount(containerId,activeTab){
   const el=document.getElementById(containerId);
   if(!el) return;
   el.innerHTML=PHASE_MAP[activeTab]?renderMarcaKnockoutBracket():'';
+  if(PHASE_MAP[activeTab]) requestAnimationFrame(()=>drawMarcaBracketConnectors(el));
 }
+let marcaBracketResizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(marcaBracketResizeTimer);
+  marcaBracketResizeTimer=setTimeout(()=>{
+    document.querySelectorAll('#prodeBracketMount,#resultBracketMount').forEach(el=>drawMarcaBracketConnectors(el));
+  },120);
+});
 
 function renderProde(){
   ensureEnabledProdeTab();
