@@ -2594,12 +2594,14 @@ function drawMarcaBracketConnectors(scope){
     const targetX=rightSide?to.right:to.left;
     const jointX=rightSide?sourceX-14:sourceX+14;
     return `M ${sourceX} ${from.y} H ${jointX} V ${to.y} H ${targetX}`;
-  };  getMarcaBracketLinks().forEach(([sources,target])=>{
+  };
+  getMarcaBracketLinks().forEach(([sources,target])=>{
     const targetEl=byId(target);
     const sourceEls=sources.map(byId).filter(Boolean);
     if(!targetEl||!sourceEls.length) return;
     const t=mid(targetEl);
-    const first=mid(sourceEls[0]);`r`n    const rightSide=((t.left+t.right)/2) < ((first.left+first.right)/2);
+    const first=mid(sourceEls[0]);
+    const rightSide=((t.left+t.right)/2) < ((first.left+first.right)/2);
     const finalClass=target==='FIN'?' final-link':'';
     const d=sourceEls.length>1
       ? bracketPath(mid(sourceEls[0]),mid(sourceEls[1]),t,rightSide)
