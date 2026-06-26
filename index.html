@@ -1258,17 +1258,17 @@ nav{
 .marca-connector-path{
   fill:none;
   stroke:#A9B7C6;
-  stroke-width:1.8;
+  stroke-width:2.2;
   stroke-linecap:round;
   stroke-linejoin:round;
-  opacity:.62;
+  opacity:.82;
   shape-rendering:geometricPrecision;
   filter:drop-shadow(0 1px 1px rgba(30,58,95,.10));
 }
 .marca-connector-path.final-link{
   stroke:#A9B7C6;
-  stroke-width:2;
-  opacity:.72;
+  stroke-width:2.6;
+  opacity:.9;
 }
 @keyframes bracketFadeUp{
   from{opacity:0;transform:translateY(8px);}
@@ -2581,25 +2581,31 @@ function drawMarcaBracketConnectors(scope){
   };
   const byId=(id)=>bracket.querySelector(`.marca-card[data-match-id="${id}"]`);
   const paths=[];
-  const stubPath=(point,rightSide,len=22)=>{
-    const x2=rightSide?point.left-len:point.right+len;
-    const x1=rightSide?point.left:point.right;
-    return `M ${x1} ${point.y} H ${x2}`;
+  const connectorJoint=(sourceX,targetX,rightSide)=>{
+    const distance=Math.abs(targetX-sourceX);
+    const offset=Math.max(18,Math.min(34,distance*.24));
+    return rightSide?sourceX-offset:sourceX+offset;
   };
-  const targetStub=(to,rightSide,len=22)=>{
-    const x1=rightSide?to.right+len:to.left-len;
-    const x2=rightSide?to.right:to.left;
-    return `M ${x1} ${to.y} H ${x2}`;
+  const bracketPath=(fromA,fromB,to,rightSide)=>{
+    const sourceX=rightSide?fromA.left:fromA.right;
+    const targetX=rightSide?to.right:to.left;
+    const yTop=Math.min(fromA.y,fromB.y);
+    const yBottom=Math.max(fromA.y,fromB.y);
+    const junctionY=(yTop+yBottom)/2;
+    const jointX=connectorJoint(sourceX,targetX,rightSide);
+    return [
+      `M ${sourceX} ${yTop} H ${jointX}`,
+      `M ${sourceX} ${yBottom} H ${jointX}`,
+      `M ${jointX} ${yTop} V ${yBottom}`,
+      `M ${jointX} ${junctionY} H ${targetX}`
+    ].join(' ');
   };
-  const bracketPath=(fromA,fromB,to,rightSide)=>[
-    stubPath(fromA,rightSide),
-    stubPath(fromB,rightSide),
-    targetStub(to,rightSide)
-  ].join(' ');
-  const singlePath=(from,to,rightSide)=>[
-    stubPath(from,rightSide,18),
-    targetStub(to,rightSide,18)
-  ].join(' ');
+  const singlePath=(from,to,rightSide)=>{
+    const sourceX=rightSide?from.left:from.right;
+    const targetX=rightSide?to.right:to.left;
+    const jointX=connectorJoint(sourceX,targetX,rightSide);
+    return `M ${sourceX} ${from.y} H ${jointX} V ${to.y} H ${targetX}`;
+  };
   getMarcaBracketLinks().forEach(([sources,target])=>{
     const targetEl=byId(target);
     const sourceEls=sources.map(byId).filter(Boolean);
