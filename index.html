@@ -1061,7 +1061,7 @@ nav{
   letter-spacing:.7px!important;
 }
 .marca-round-title::before{
-  content:'⚽';
+  content:'\26BD';
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -1124,6 +1124,7 @@ nav{
   font-size:12px!important;
   font-weight:600!important;
   color:#1E3A5F!important;
+  overflow:hidden!important;
 }
 .marca-team-row strong{
   color:#1E3A5F!important;
@@ -1133,19 +1134,38 @@ nav{
   text-overflow:ellipsis!important;
 }
 .marca-team-row .team-flag{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
   width:24px!important;
   height:17px!important;
   min-width:24px!important;
+  max-width:24px!important;
+  overflow:hidden!important;
   filter:none!important;
+  font-size:0!important;
+  line-height:0!important;
 }
 .marca-team-row .team-flag img,
 .marca-team-row .team-flag .flag-img{
+  display:block!important;
   width:24px!important;
   height:16px!important;
   min-width:24px!important;
   max-width:24px!important;
+  object-fit:cover!important;
   border-radius:3px!important;
   box-shadow:0 2px 5px rgba(30,58,95,.12)!important;
+}
+.marca-team-row .team-flag .flag-img:not(img){
+  width:18px!important;
+  height:12px!important;
+  min-width:18px!important;
+  max-width:18px!important;
+  border-radius:3px!important;
+  background:rgba(221,234,245,.72)!important;
+  box-shadow:inset 0 0 0 1px rgba(168,216,255,.55)!important;
+  color:transparent!important;
 }
 .marca-score{
   min-width:18px!important;
@@ -1201,9 +1221,16 @@ nav{
 .marca-final-label{
   grid-row:11!important;
   align-self:start!important;
-  margin-top:8px!important;
+  margin-top:16px!important;
   font-size:12px!important;
   letter-spacing:4px!important;
+  color:#D4AF37!important;
+  font-family:'Poppins','Inter',sans-serif!important;
+  font-weight:700!important;
+  text-align:center!important;
+  text-transform:uppercase!important;
+  position:relative!important;
+  z-index:3!important;
 }
 .marca-connectors{
   position:absolute!important;
