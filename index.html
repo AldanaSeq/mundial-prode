@@ -1299,12 +1299,21 @@ nav{
   border-radius:18px!important;
   padding:14px!important;
   box-shadow:0 16px 36px rgba(30,58,95,.10)!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scroll-snap-type:x proximity!important;
+  scrollbar-color:#A8D8FF rgba(221,234,245,.7)!important;
+  scrollbar-width:thin!important;
 }
+.marca-bracket-wrap::-webkit-scrollbar{height:9px!important;}
+.marca-bracket-wrap::-webkit-scrollbar-track{background:rgba(221,234,245,.7)!important;border-radius:999px!important;}
+.marca-bracket-wrap::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#A8D8FF,#D4AF37)!important;border-radius:999px!important;}
 .marca-bracket{
   display:grid!important;
-  grid-template-columns:220px 200px 190px 150px 120px 150px 190px 200px 220px!important;
-  gap:28px!important;
-  min-width:1864px!important;
+  grid-template-columns:210px 190px 180px 146px 128px 146px 180px 190px 210px!important;
+  gap:24px!important;
+  min-width:1744px!important;
   align-items:start!important;
   padding:0 2px 8px!important;
   position:relative!important;
@@ -1441,17 +1450,21 @@ nav{
 }
 .marca-round-final .marca-card{
   grid-row:9 / span 2!important;
-  width:120px!important;
+  width:128px!important;
   top:0!important;
+  border-color:rgba(212,175,55,.45)!important;
+  box-shadow:0 12px 28px rgba(212,175,55,.13),0 8px 18px rgba(30,58,95,.09),inset 0 1px 0 rgba(255,255,255,.9)!important;
 }
 .marca-cup{
   grid-row:7!important;
   align-self:end!important;
-  width:46px!important;
-  height:46px!important;
-  margin-bottom:10px!important;
-  border-radius:12px!important;
-  font-size:26px!important;
+  width:58px!important;
+  height:58px!important;
+  margin-bottom:8px!important;
+  border-radius:18px!important;
+  font-size:32px!important;
+  background:linear-gradient(135deg,rgba(212,175,55,.22),rgba(255,255,255,.92))!important;
+  box-shadow:0 16px 34px rgba(212,175,55,.18),0 8px 20px rgba(30,58,95,.10)!important;
 }
 .marca-final-label{
   grid-row:11!important;
@@ -1491,9 +1504,9 @@ nav{
 @media(max-width:720px){
   .marca-bracket-wrap{padding:12px!important;margin-left:-10px!important;margin-right:-10px!important;}
   .marca-bracket{
-    grid-template-columns:180px 170px 160px 138px 112px 138px 160px 170px 180px!important;
-    gap:20px!important;
-    min-width:1548px!important;
+    grid-template-columns:180px 166px 156px 132px 120px 132px 156px 166px 180px!important;
+    gap:18px!important;
+    min-width:1496px!important;
   }
 }
 </style>
@@ -2805,7 +2818,7 @@ function drawMarcaBracketConnectors(scope){
   const byId=(id)=>bracket.querySelector(`.marca-card[data-match-id="${id}"]`);
   const paths=[];
   const bracketPath=(fromA,fromB,to,rightSide)=>{
-    const edgeGap=14;
+    const edgeGap=12;
     const sourceX=rightSide?Math.min(fromA.left,fromB.left):Math.max(fromA.right,fromB.right);
     const targetX=rightSide?to.right:to.left;
     const jointX=rightSide?sourceX-edgeGap:sourceX+edgeGap;
@@ -2824,7 +2837,7 @@ function drawMarcaBracketConnectors(scope){
   const singlePath=(from,to,rightSide)=>{
     const sourceX=rightSide?from.left:from.right;
     const targetX=rightSide?to.right:to.left;
-    const jointX=rightSide?sourceX-14:sourceX+14;
+    const jointX=rightSide?sourceX-12:sourceX+12;
     return `M ${sourceX} ${from.y} H ${jointX} V ${to.y} H ${targetX}`;
   };
   getMarcaBracketLinks().forEach(([sources,target])=>{
