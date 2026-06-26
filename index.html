@@ -1335,6 +1335,7 @@ nav{
   border:1px solid #DDEAF5!important;
   box-shadow:0 8px 18px rgba(30,58,95,.09),inset 0 1px 0 rgba(255,255,255,.9)!important;
   overflow:visible!important;
+  z-index:2!important;
 }
 .marca-card:hover{
   transform:translateY(-2px)!important;
@@ -1445,28 +1446,32 @@ nav{
 .marca-side-right .marca-card::before,
 .marca-pair::before,
 .marca-side-right .marca-pair::before{
-  border-top:2px solid rgba(107,122,144,.38)!important;
+  border-top:2px solid rgba(168,190,208,.72)!important;
+  z-index:0!important;
+  pointer-events:none!important;
 }
 .marca-pair::after,
 .marca-side-right .marca-pair::after{
-  border-right:2px solid rgba(107,122,144,.38)!important;
+  border-right:2px solid rgba(168,190,208,.72)!important;
   top:40px!important;
   bottom:40px!important;
+  z-index:0!important;
+  pointer-events:none!important;
 }
 .marca-card::after{
   right:-13px!important;
-  width:13px!important;
+  width:12px!important;
 }
 .marca-side-right .marca-card::before{
   left:-13px!important;
-  width:13px!important;
+  width:12px!important;
 }
 .marca-pair::before{
-  right:-12px!important;
+  right:-24px!important;
   width:12px!important;
 }
 .marca-side-right .marca-pair::before{
-  left:-12px!important;
+  left:-24px!important;
   width:12px!important;
 }
 .marca-pair::after{
@@ -1474,6 +1479,13 @@ nav{
 }
 .marca-side-right .marca-pair::after{
   left:-12px!important;
+}
+.marca-card:hover::after,
+.marca-side-right .marca-card:hover::before,
+.marca-pair:hover::before,
+.marca-pair:hover::after{
+  border-color:rgba(212,175,55,.68)!important;
+  filter:none!important;
 }
 @media(max-width:720px){
   .marca-bracket-wrap{padding:12px!important;margin-left:-10px!important;margin-right:-10px!important;}
