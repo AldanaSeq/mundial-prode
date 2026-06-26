@@ -1505,31 +1505,28 @@ nav{
   margin-bottom:0!important;
 }
 .marca-pair{
-  display:contents!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:10px!important;
+  align-self:center!important;
+  position:relative!important;
 }
 .marca-card{
   align-self:center!important;
   margin:0!important;
 }
 .marca-spacer-r32{padding-top:0!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(1){grid-row:2 / span 2!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(2){grid-row:4 / span 2!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(3){grid-row:6 / span 2!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(4){grid-row:8 / span 2!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(5){grid-row:10 / span 2!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(6){grid-row:12 / span 2!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(7){grid-row:14 / span 2!important;}
-.marca-spacer-r32 .marca-card:nth-of-type(8){grid-row:16 / span 2!important;}
+.marca-spacer-r32 .marca-pair:nth-of-type(2){grid-row:2 / span 4!important;}
+.marca-spacer-r32 .marca-pair:nth-of-type(3){grid-row:6 / span 4!important;}
+.marca-spacer-r32 .marca-pair:nth-of-type(4){grid-row:10 / span 4!important;}
+.marca-spacer-r32 .marca-pair:nth-of-type(5){grid-row:14 / span 4!important;}
 .marca-spacer-r16{padding-top:0!important;}
-.marca-spacer-r16 .marca-card:nth-of-type(1){grid-row:3 / span 2!important;}
-.marca-spacer-r16 .marca-card:nth-of-type(2){grid-row:7 / span 2!important;}
-.marca-spacer-r16 .marca-card:nth-of-type(3){grid-row:11 / span 2!important;}
-.marca-spacer-r16 .marca-card:nth-of-type(4){grid-row:15 / span 2!important;}
+.marca-spacer-r16 .marca-pair:nth-of-type(2){grid-row:4 / span 5!important;}
+.marca-spacer-r16 .marca-pair:nth-of-type(3){grid-row:12 / span 5!important;}
 .marca-spacer-qf{padding-top:0!important;}
-.marca-spacer-qf .marca-card:nth-of-type(1){grid-row:5 / span 2!important;}
-.marca-spacer-qf .marca-card:nth-of-type(2){grid-row:13 / span 2!important;}
+.marca-spacer-qf .marca-pair:nth-of-type(2){grid-row:8 / span 5!important;}
 .marca-spacer-sf{padding-top:0!important;}
-.marca-spacer-sf .marca-card:nth-of-type(1){grid-row:9 / span 2!important;}
+.marca-spacer-sf .marca-pair:nth-of-type(2){grid-row:9 / span 2!important;}
 .marca-round-final{
   display:grid!important;
   grid-template-rows:34px repeat(16,var(--slot))!important;
