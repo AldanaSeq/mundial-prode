@@ -1278,11 +1278,11 @@ nav{
   </div>
   <div id="scoreDisplay" class="score-strip" style="display:none">
     <div class="score-chip"><span class="val" id="hdrPred">0</span><span class="lbl">Pred</span></div>
-    <div class="score-chip"><span class="val" id="hdrHits">0</span><span class="lbl">Aciert</span></div>
+    <div class="score-chip"><span class="val" id="hdrHits">0</span><span class="lbl">OK</span></div>
     <div class="score-chip" style="border-color:var(--gold3)"><span class="val" id="hdrPts">0</span><span class="lbl">Pts</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
-    <div class="sync-indicator"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">—</span></div>
+    <div class="sync-indicator"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">Conectando...</span></div>
     <div id="adminIndicator" style="display:none"><span class="admin-badge">⚙ Admin</span></div>
   </div>
 </header>
@@ -1353,7 +1353,7 @@ nav{
       <thead><tr><th>Predicción</th><th>Aplica</th><th>Puntos</th></tr></thead>
       <tbody>
         <tr><td>Resultado correcto</td><td>Todas las fases</td><td>+3</td></tr>
-        <tr><td>Marcador exacto</td><td>Bonus si acertaste el resultado</td><td>+2</td></tr>
+        <tr><td>Marcador exacto</td><td>Bonus adicional si acertaste el resultado</td><td>+2 bonus</td></tr>
         <tr><td>Campeón del mundo</td><td>Final</td><td>+15</td></tr>
       </tbody>
     </table>
@@ -1363,7 +1363,7 @@ nav{
     <div class="section-head">Preguntas frecuentes</div>
     <details open>
       <summary>¿Puedo modificar mis pronósticos?</summary>
-      <p>Sí. Podés editar cada partido hasta que se bloquee por horario. Después queda cerrado.</p>
+      <p>S�. Pod�s editar tus pron�sticos mientras la carga est� habilitada. Si el administrador bloquea la carga, quedan cerrados.</p>
     </details>
     <details>
       <summary>¿Cuándo veo Acierto o Fallaste?</summary>
@@ -1392,7 +1392,7 @@ nav{
   </div>
   <div class="scoring-info">
     <div class="sc-pill"><span class="sc-pts">+3</span><span>Resultado correcto (1X2)</span></div>
-    <div class="sc-pill"><span class="sc-pts">+5</span><span>Marcador exacto</span></div>
+    <div class="sc-pill"><span class="sc-pts">+5</span><span>Exacto total (+3 +2)</span></div>
     <div class="sc-pill"><span class="sc-pts">+15</span><span>Campeón correcto</span></div>
   </div>
   <div class="access-panel" id="accessPanel">
