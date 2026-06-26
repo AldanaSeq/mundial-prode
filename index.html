@@ -2575,35 +2575,31 @@ function drawMarcaBracketConnectors(scope){
   };
   const byId=(id)=>bracket.querySelector(`.marca-card[data-match-id="${id}"]`);
   const paths=[];
-  const clampLane=(value,min,max)=>Math.max(min,Math.min(max,value));
+  const connectorLane=(sourceX,targetX,rightSide)=>{
+    const distance=Math.abs(targetX-sourceX);
+    const offset=Math.max(18,Math.min(44,distance*.48));
+    return rightSide?sourceX-offset:sourceX+offset;
+  };
   const bracketPath=(fromA,fromB,to,rightSide)=>{
-    const gap=12;
     const sourceX=rightSide?fromA.left:fromA.right;
     const targetX=rightSide?to.right:to.left;
-    const y1=fromA.y, y2=fromB.y;
-    const junctionY=(y1+y2)/2;
-    const available=Math.abs(targetX-sourceX);
-    const lane=clampLane(available*.28,10,22);
-    const jointX=rightSide?sourceX-lane:sourceX+lane;
-    const targetStub=rightSide?targetX+gap:targetX-gap;
+    const yTop=Math.min(fromA.y,fromB.y);
+    const yBottom=Math.max(fromA.y,fromB.y);
+    const junctionY=(yTop+yBottom)/2;
+    const jointX=connectorLane(sourceX,targetX,rightSide);
     return [
-      `M ${sourceX} ${y1} H ${jointX}`,
-      `M ${sourceX} ${y2} H ${jointX}`,
-      `M ${jointX} ${Math.min(y1,y2)} V ${Math.max(y1,y2)}`,
-      `M ${jointX} ${junctionY} H ${targetStub}`,
-      `M ${targetStub} ${Math.min(junctionY,to.y)} V ${Math.max(junctionY,to.y)}`,
-      `M ${targetStub} ${to.y} H ${targetX}`
+      `M ${sourceX} ${yTop} H ${jointX}`,
+      `M ${sourceX} ${yBottom} H ${jointX}`,
+      `M ${jointX} ${yTop} V ${yBottom}`,
+      `M ${jointX} ${junctionY} H ${targetX}`
     ].join(' ');
   };
   const singlePath=(from,to,rightSide)=>{
     const sourceX=rightSide?from.left:from.right;
     const targetX=rightSide?to.right:to.left;
-    const available=Math.abs(targetX-sourceX);
-    const lane=clampLane(available*.25,12,24);
-    const jointX=rightSide?sourceX-lane:sourceX+lane;
+    const jointX=connectorLane(sourceX,targetX,rightSide);
     return `M ${sourceX} ${from.y} H ${jointX} V ${to.y} H ${targetX}`;
-  };
-  getMarcaBracketLinks().forEach(([sources,target])=>{
+  };  getMarcaBracketLinks().forEach(([sources,target])=>{
     const targetEl=byId(target);
     const sourceEls=sources.map(byId).filter(Boolean);
     if(!targetEl||!sourceEls.length) return;
