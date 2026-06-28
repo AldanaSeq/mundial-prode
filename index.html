@@ -2867,7 +2867,7 @@ async function predict(matchId,outcome){
   if(!match) return;
   const exacts=state.exactScores[currentPlayerId]||{};
   const card=document.getElementById('card-'+matchId);
-  if(card) card.outerHTML=buildMatchCard(match,state.predictions[currentPlayerId][matchId],exacts[matchId],isKnockoutMatch(match));
+  if(card) card.outerHTML=buildMatchCard(getMatchDisplay(match),state.predictions[currentPlayerId][matchId],exacts[matchId],isKnockoutMatch(match));
   await saveToCloud();
 }
 
