@@ -2244,7 +2244,7 @@ function normalizeTournamentPhasePrerequisites(){
 }
 function getRound32ResolvedTeams(){
   const groupStandings={}; GROUP_KEYS.forEach(g=>groupStandings[g]=calculateGroupStandings(g));
-  const thirdsRanked=areAllGroupResultsLoaded()?getThirdsRanked().slice(0,8):[];
+  const thirdsRanked=getThirdsRanked(true).slice(0,8);
   const usedThirdGroups=new Set();
   const resolved={};
   MATCHES.filter(m=>m.phase==='16avos de Final').forEach(m=>{
@@ -2298,8 +2298,9 @@ function calculateGroupStandings(groupKey){
   });
   return Object.values(stats).sort((a,b)=>b.pts-a.pts||b.dg-a.dg||b.gf-a.gf||a.name.localeCompare(b.name));
 }
-function getThirdsRanked(){
-  return GROUP_KEYS.map(g=>calculateGroupStandings(g)[2]).filter(Boolean).sort((a,b)=>b.pts-a.pts||b.dg-a.dg||b.gf-a.gf||a.name.localeCompare(b.name));
+function getThirdsRanked(onlyCompletedGroups=false){
+  const groups=onlyCompletedGroups?GROUP_KEYS.filter(g=>areGroupResultsLoaded(g)):GROUP_KEYS;
+  return groups.map(g=>calculateGroupStandings(g)[2]).filter(Boolean).sort((a,b)=>b.pts-a.pts||b.dg-a.dg||b.gf-a.gf||a.name.localeCompare(b.name));
 }
 function areGroupResultsLoaded(groupKey){
   return MATCHES
@@ -2329,8 +2330,6 @@ function resolveSeed(seed, groupStandings, thirdsRanked, usedThirdGroups){
   }
   m=s.match(/^3\S*\s*([A-L](?:\/[A-L])*)$/);
   if(m){
-    // Los mejores terceros solo se pueden definir cuando están cargados TODOS los grupos.
-    if(!areAllGroupResultsLoaded()) return s;
     const allowed=m[1].split('/');
     const pick=thirdsRanked.find(t=>allowed.includes(t.group)&&!usedThirdGroups.has(t.group));
     if(pick){usedThirdGroups.add(pick.group);return pick.name;}
@@ -2340,7 +2339,7 @@ function resolveSeed(seed, groupStandings, thirdsRanked, usedThirdGroups){
 function completeRound32Teams(){
   state.phaseTeams=state.phaseTeams||{};
   const groupStandings={}; GROUP_KEYS.forEach(g=>groupStandings[g]=calculateGroupStandings(g));
-  const thirdsRanked=getThirdsRanked().slice(0,8);
+  const thirdsRanked=getThirdsRanked(true).slice(0,8);
   const usedThirdGroups=new Set();
   MATCHES.filter(m=>m.phase==='16avos de Final').forEach(m=>{
     state.phaseTeams[m.id]={
