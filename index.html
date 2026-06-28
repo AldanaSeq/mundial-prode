@@ -123,11 +123,13 @@ nav::-webkit-scrollbar{display:none;}
 .pred-section{margin-bottom:8px;}
 .pred-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:5px;font-family:'Oswald',sans-serif;}
 .pred-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;}
+.pred-row.ko-pred-row{grid-template-columns:1fr 1fr;gap:6px;}
 .pred-btn{padding:7px 4px;border:1px solid var(--border);border-radius:7px;background:transparent;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center;user-select:none;line-height:1.3;}
 .pred-btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold);}
 .pred-btn.sel-home{background:rgba(74,143,212,.18);border-color:var(--blue);color:var(--blue);}
 .pred-btn.sel-draw{background:rgba(212,168,67,.15);border-color:var(--gold);color:var(--gold);}
 .pred-btn.sel-away{background:rgba(217,79,79,.18);border-color:var(--red);color:var(--red);}
+.pred-btn small{display:block;font-size:9px;font-weight:700;opacity:.75;margin-top:2px;}
 .pred-btn.correct-result{background:rgba(60,179,113,.18)!important;border-color:var(--green)!important;color:var(--green)!important;}
 .pred-btn.wrong-result{background:rgba(217,79,79,.08)!important;}
 
@@ -611,6 +613,7 @@ nav{
 .pred-btn.sel-home{background:rgba(77,163,255,.16);border-color:var(--world-electric);color:#D6F0FF;}
 .pred-btn.sel-draw{background:rgba(212,175,55,.14);border-color:var(--gold);color:var(--gold2);}
 .pred-btn.sel-away{background:rgba(187,167,255,.15);border-color:var(--world-violet);color:#E8E0FF;}
+.pred-btn small{display:block;font-size:9px;font-weight:700;opacity:.75;margin-top:2px;}
 .exact-section{background:rgba(8,30,54,.42);border-color:rgba(168,216,255,.13);border-radius:16px;}
 .exact-input.filled{border-color:var(--arg-celeste);box-shadow:0 0 0 3px rgba(168,216,255,.1);}
 .card-venue{color:rgba(214,240,255,.42);}
@@ -817,6 +820,8 @@ nav{
 .pred-btn.sel-home{background:rgba(168,216,255,.45);border-color:#72BFF5;color:#1E3A5F;}
 .pred-btn.sel-draw{background:rgba(230,197,90,.24);border-color:#D4AF37;color:#7A6118;}
 .pred-btn.sel-away{background:rgba(187,167,255,.22);border-color:#BBA7FF;color:#594E91;}
+.pred-row.ko-pred-row{grid-template-columns:1fr 1fr;}
+.pred-btn small{display:block;font-size:9px;font-weight:700;opacity:.75;margin-top:2px;}
 .exact-section,.result-row{background:rgba(238,248,255,.68);border-color:rgba(168,216,255,.45);}
 .fix-date,.fix-venue,.lb-champ,.lb-cell,.hist-meta,.hist-pred{color:#6688A2;}
 .fix-teams,.team-cell{color:var(--arg-blue);}
@@ -1945,10 +1950,43 @@ function getResultOutcome(matchId){
   if(sc.h>sc.a) return 'home';
   if(sc.a>sc.h) return 'away';
   const m=MATCH_MAP[matchId];
-  // En fases eliminatorias no puede quedar empate: si el partido terminó igualado,
-  // la administradora debe elegir quién ganó por penales.
   if(isKnockoutMatch(m) && r && (r.penaltyWinner==='home'||r.penaltyWinner==='away')) return r.penaltyWinner;
   return 'draw';
+}
+function getPredictionWinner(pred){
+  if(!pred) return null;
+  const p=String(pred);
+  if(p==='draw') return 'draw';
+  if(p.startsWith('home')) return 'home';
+  if(p.startsWith('away')) return 'away';
+  return p;
+}
+function getPredictionMethod(pred){
+  const p=String(pred||'');
+  if(p.endsWith('_extra')) return 'extra';
+  if(p.endsWith('_pens')) return 'pens';
+  if(p==='draw') return 'draw';
+  if(p==='home'||p==='away') return 'regular';
+  return '';
+}
+function getPredictionLabel(pred, homeTeam, awayTeam){
+  const winner=getPredictionWinner(pred);
+  const method=getPredictionMethod(pred);
+  if(!winner) return '�';
+  if(winner==='draw') return 'Empate';
+  const flag=winner==='home'?flagButton(homeTeam):flagButton(awayTeam);
+  const base=winner==='home'?'Local':'Visita';
+  const methodLabel=method==='extra'?'Alargue':method==='pens'?'Penales':method==='regular'?'90 min':'';
+  return `${flag} ${base}${methodLabel?' � '+methodLabel:''}`;
+}
+function getResultMethod(matchId){
+  const r=state.results[matchId];
+  const m=MATCH_MAP[matchId];
+  const sc=getOfficialScore(matchId);
+  if(!r||!sc) return '';
+  if(!isKnockoutMatch(m)) return sc.h===sc.a?'draw':'regular';
+  if(sc.h===sc.a && (r.penaltyWinner==='home'||r.penaltyWinner==='away')) return 'pens';
+  return r.finishMethod==='extra'?'extra':'regular';
 }
 function calcPlayerStats(pid){
   const preds=state.predictions[pid]||{};
@@ -1959,9 +1997,12 @@ function calcPlayerStats(pid){
     totalPreds++;
     const outcome=getResultOutcome(mid);
     if(!outcome) continue;
-    if(pred===outcome){
+    const predWinner=getPredictionWinner(pred);
+    if(predWinner===outcome){
       hits++;
       pts+=3;
+      const match=MATCH_MAP[mid];
+      if(isKnockoutMatch(match) && getPredictionMethod(pred) && getPredictionMethod(pred)===getResultMethod(mid)) pts+=1;
       const ex=exacts[mid];
       const sc=getOfficialScore(mid);
       if(ex&&sc&&parseInt(ex.home,10)===sc.h&&parseInt(ex.away,10)===sc.a){
@@ -2782,9 +2823,13 @@ function buildMatchCard(m,pred,exact,isKO){
   const official=isOfficialResult(m.id);
   const sc=official?getOfficialScore(m.id):null;
   const outcome=official?getResultOutcome(m.id):null;
-  const isCorrect=outcome&&pred&&pred===outcome;
+  const predWinner=getPredictionWinner(pred);
+  const predMethod=getPredictionMethod(pred);
+  const resultMethod=official?getResultMethod(m.id):'';
+  const isCorrect=outcome&&predWinner&&predWinner===outcome;
+  const isMethodExact=isCorrect&&isKO&&predMethod&&predMethod===resultMethod;
   const isExact=isCorrect&&exact&&sc&&parseInt(exact.home,10)===sc.h&&parseInt(exact.away,10)===sc.a;
-  const isWrong=outcome&&pred&&pred!==outcome;
+  const isWrong=outcome&&pred&&predWinner!==outcome;
   const scoreStr=sc?`${sc.h} – ${sc.a}`:null;
   const locked=isPredictionInputLocked(m);
   const disabledAttr=locked?' disabled aria-disabled="true"':'';
@@ -2795,15 +2840,21 @@ function buildMatchCard(m,pred,exact,isKO){
   else if(isWrong) cls+=' wrong';
   const btnCls=(side)=>{
     let c='pred-btn';
-    if(pred===side) c+=` sel-${side}`;
-    if(outcome&&pred===side&&pred===outcome) c+=' correct-result';
-    if(outcome&&pred===side&&pred!==outcome) c+=' wrong-result';
+    const base=getPredictionWinner(side);
+    if(pred===side){
+      if(base==='home') c+=' sel-home';
+      else if(base==='away') c+=' sel-away';
+      else if(base==='draw') c+=' sel-draw';
+      c+=' selected-pick';
+    }
+    if(outcome&&pred===side&&getPredictionWinner(side)===outcome) c+=' correct-result';
+    if(outcome&&pred===side&&getPredictionWinner(side)!==outcome) c+=' wrong-result';
     return c;
   };
   let resultLabel='';
   if(outcome&&pred){
-    if(isExact) resultLabel='<div class="result-label ok-exact">★ EXACTO · +5 PTS</div>';
-    else if(isCorrect) resultLabel='<div class="result-label ok">✓ ACIERTO · +3 PTS</div>';
+    if(isExact) resultLabel='<div class="result-label ok-exact">★ EXACTO · +5 PTS'+(isMethodExact?' · MÉTODO +1':'')+'</div>';
+    else if(isCorrect) resultLabel='<div class="result-label ok">✓ ACIERTO · +3 PTS'+(isMethodExact?' · MÉTODO +1':'')+'</div>';
     else resultLabel='<div class="result-label ko">✗ FALLASTE</div>';
   } else if(outcome&&!pred){
     resultLabel='<div class="result-label" style="color:var(--muted)">Sin predicción</div>';
@@ -2825,11 +2876,20 @@ function buildMatchCard(m,pred,exact,isKO){
       </div>
       <div class="pred-section">
         <div class="pred-label">1 – Resultado</div>
+        ${isKO?`
+        <div class="pred-row ko-pred-row">
+          <button class="${btnCls('home')}"${disabledAttr} onclick="predict('${m.id}','home')">${flagButton(ht)} ${escHtml(m.home)}<small>90 min</small></button>
+          <button class="${btnCls('away')}"${disabledAttr} onclick="predict('${m.id}','away')">${flagButton(at)} ${escHtml(m.away)}<small>90 min</small></button>
+          <button class="${btnCls('home_extra')}"${disabledAttr} onclick="predict('${m.id}','home_extra')">${flagButton(ht)} ${escHtml(m.home)}<small>Alargue</small></button>
+          <button class="${btnCls('away_extra')}"${disabledAttr} onclick="predict('${m.id}','away_extra')">${flagButton(at)} ${escHtml(m.away)}<small>Alargue</small></button>
+          <button class="${btnCls('home_pens')}"${disabledAttr} onclick="predict('${m.id}','home_pens')">${flagButton(ht)} ${escHtml(m.home)}<small>Penales</small></button>
+          <button class="${btnCls('away_pens')}"${disabledAttr} onclick="predict('${m.id}','away_pens')">${flagButton(at)} ${escHtml(m.away)}<small>Penales</small></button>
+        </div>`:`
         <div class="pred-row">
           <button class="${btnCls('home')}"${disabledAttr} onclick="predict('${m.id}','home')">${flagButton(ht)} Local</button>
           <button class="${btnCls('draw')}"${disabledAttr} onclick="predict('${m.id}','draw')">Empate</button>
           <button class="${btnCls('away')}"${disabledAttr} onclick="predict('${m.id}','away')">${flagButton(at)} Visita</button>
-        </div>
+        </div>`}
       </div>
       <div class="exact-section">
         <div class="exact-label">
@@ -2943,16 +3003,16 @@ function renderHistorialContent(){
       const outcome=getResultOutcome(m.id);
       const pred=preds[m.id];
       const ex=exacts[m.id];
-      const correct=pred&&pred===outcome;
+      const correct=pred&&getPredictionWinner(pred)===outcome;
       const exactHit=correct&&ex&&parseInt(ex.home,10)===sc.h&&parseInt(ex.away,10)===sc.a;
-      const wrong=pred&&pred!==outcome;
+      const wrong=pred&&getPredictionWinner(pred)!==outcome;
       let cls='hist-item',badge='',pts='';
       if(!pred){cls+=' pending';badge='<span class="hist-badge pending">Sin pred.</span>';pts='<div class="hist-pts" style="color:var(--muted2)">—</div>';}
       else if(exactHit){cls+=' correct-exact';badge='<span class="hist-badge correct-exact">★ EXACTO</span>';pts='<div class="hist-pts">+5</div>';}
       else if(correct){cls+=' correct';badge='<span class="hist-badge correct">✓ ACIERTO</span>';pts='<div class="hist-pts">+3</div>';}
       else{cls+=' wrong';badge='<span class="hist-badge wrong">✗ FALLO</span>';pts='<div class="hist-pts" style="color:var(--muted2)">0</div>';}
       const ht=getTeam(m.home),at=getTeam(m.away);
-      const predLabel=pred?{home:`${flagButton(ht)} Local`,draw:'Empate',away:`${flagButton(at)} Visita`}[pred]:'—';
+      const predLabel=pred?getPredictionLabel(pred,ht,at):'-';
       const exLabel=ex&&ex.home!==''&&ex.away!==''?`${ex.home}–${ex.away}`:'—';
       html+=`<div class="${cls}">
         <div class="hist-match">
@@ -3246,6 +3306,14 @@ function buildResultCard(m){
   const ht=getTeam(m.home),at=getTeam(m.away);
   const isKO=isKnockoutMatch(m);
   const showPen=isKO && String(r.home)!=='' && String(r.away)!=='' && String(r.home)===String(r.away);
+  const methodBox=isKO?`
+      <div class="result-row" id="methodrow-${m.id}" style="${showPen?'display:none':''}">
+        <span style="font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif;font-weight:700;">Definición:</span>
+        <select id="finish-${m.id}" class="phase-select" style="padding:6px 10px;font-size:12px;min-width:150px;">
+          <option value="regular"${r.finishMethod!=='extra'?' selected':''}>90 minutos</option>
+          <option value="extra"${r.finishMethod==='extra'?' selected':''}>Alargue</option>
+        </select>
+      </div>`:'';
   const penBox=isKO?`
       <div class="result-row" id="penrow-${m.id}" style="${showPen?'':'display:none'}">
         <span style="font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif;font-weight:700;">Ganó por penales:</span>
@@ -3277,6 +3345,7 @@ function buildResultCard(m){
         <button class="save-btn" onclick="saveResult('${m.id}')">Guardar</button>
         <span class="saved-flash" id="rsaved-${m.id}">✓</span>
       </div>
+      ${methodBox}
       ${penBox}
       <div class="card-venue">${escHtml(m.venue)}</div>
     </div>
@@ -3284,14 +3353,16 @@ function buildResultCard(m){
 }
 function togglePenaltyWinner(matchId){
   const m=MATCH_MAP[matchId];
-  if(!m || m.group!=='—') return;
+  if(!isKnockoutMatch(m)) return;
   const hEl=document.getElementById('rh-'+matchId);
   const aEl=document.getElementById('ra-'+matchId);
   const row=document.getElementById('penrow-'+matchId);
+  const methodRow=document.getElementById('methodrow-'+matchId);
   if(!hEl||!aEl||!row) return;
   const hv=hEl.value.trim(), av=aEl.value.trim();
   const show = hv!=='' && av!=='' && parseInt(hv,10)===parseInt(av,10);
   row.style.display = show ? 'flex' : 'none';
+  if(methodRow) methodRow.style.display = show ? 'none' : 'flex';
   if(!show){
     const sel=document.getElementById('pen-'+matchId);
     if(sel) sel.value='';
@@ -3317,6 +3388,10 @@ async function saveResult(matchId){
       return;
     }
     resultData.penaltyWinner=penWinner;
+    resultData.finishMethod='pens';
+  }else if(isKnockoutMatch(m)){
+    const finishEl=document.getElementById('finish-'+matchId);
+    if(finishEl && finishEl.value==='extra') resultData.finishMethod='extra';
   }
   state.results[matchId]=resultData;
   refreshKnockoutTeamsFromResults();
