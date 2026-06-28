@@ -1094,6 +1094,10 @@ nav{
 }
 .marca-card-head{
   height:18px!important;
+  display:grid!important;
+  grid-template-columns:auto auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:5px!important;
   margin:0 0 5px!important;
   padding:0 0 4px!important;
   border-bottom:1px solid rgba(221,234,245,.85)!important;
@@ -1105,8 +1109,29 @@ nav{
 }
 .marca-match-name{
   color:#D4AF37!important;
-  font-weight:700!important;
-  max-width:92px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+.marca-next-badge{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:15px!important;
+  padding:0 5px!important;
+  border-radius:999px!important;
+  background:rgba(168,216,255,.35)!important;
+  border:1px solid rgba(143,184,216,.35)!important;
+  color:#1E3A5F!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+.marca-date{
+  justify-self:end!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
 }
 .marca-team-row{
   height:24px!important;
@@ -2549,14 +2574,23 @@ function buildMarcaCard(matchId){
   if(!sc) cls+=' pending';
   else if(sc.h>sc.a || (sc.h===sc.a && r.penaltyWinner==='home')) cls+=' winner-home';
   else if(sc.a>sc.h || (sc.h===sc.a && r.penaltyWinner==='away')) cls+=' winner-away';
+  const publicNumber=getMatchPublicNumber(matchId);
+  const nextLabel=getMarcaNextMatchLabel(matchId);
+  const nextHtml=nextLabel?`<span class="marca-next-badge">&rarr; ${escHtml(nextLabel)}</span>`:'';
   return `<div class="${cls}" data-match-id="${escAttr(matchId)}">
     <div class="marca-card-head">
-      <span class="marca-match-name">${escHtml(m.phase.replace(' de Final',''))} ${getMatchPublicNumber(matchId)}</span>
-      <span>${escHtml(m.date)} ${escHtml(m.time)}</span>
+      <span class="marca-match-name">${escHtml(publicNumber)}</span>
+      ${nextHtml}
+      <span class="marca-date">${escHtml(m.date)} ${escHtml(m.time)}</span>
     </div>
     ${buildMarcaTeamRow(m.home,scoreHome)}
     ${buildMarcaTeamRow(m.away,scoreAway)}
   </div>`;
+}
+function getMarcaNextMatchLabel(matchId){
+  const link=getMarcaBracketLinks().find(([sources])=>sources.includes(matchId));
+  if(!link) return '';
+  return getMatchPublicNumber(link[1]);
 }
 function renderMarcaRound(title,ids,cls='',side='left'){
   const sideCls=side==='right'?' marca-side-right':'';
