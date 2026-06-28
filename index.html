@@ -2291,7 +2291,7 @@ function calculateGroupStandings(groupKey){
   const stats={};
   teams.forEach(name=>stats[name]={name,group:groupKey,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0,dg:0,pts:0});
   MATCHES.filter(m=>m.group===groupKey).forEach(m=>{
-    const sc=getOfficialScore(m.id)||getRawScore(m.id);
+    const sc=getOfficialScore(m.id);
     if(!sc||!stats[m.home]||!stats[m.away]) return;
     const h=stats[m.home], a=stats[m.away];
     h.pj++; a.pj++; h.gf+=sc.h; h.gc+=sc.a; a.gf+=sc.a; a.gc+=sc.h; h.dg=h.gf-h.gc; a.dg=a.gf-a.gc;
@@ -2308,7 +2308,7 @@ function getThirdsRanked(onlyCompletedGroups=false){
 function areGroupResultsLoaded(groupKey){
   return MATCHES
     .filter(m=>m.phase==='Fase de Grupos' && m.group===groupKey)
-    .every(m=>isOfficialResult(m.id)||!!getRawScore(m.id));
+    .every(m=>isOfficialResult(m.id));
 }
 function areAllGroupResultsLoaded(){
   return GROUP_KEYS.every(g=>areGroupResultsLoaded(g));
@@ -2354,7 +2354,7 @@ function buildThirdSeedAssignments(){
 function hasAnyGroupResultLoaded(groupKey){
   return MATCHES
     .filter(m=>m.phase==='Fase de Grupos' && m.group===groupKey)
-    .some(m=>isOfficialResult(m.id)||!!getRawScore(m.id));
+    .some(m=>isOfficialResult(m.id));
 }
 function resolveSeed(seed, groupStandings, thirdAssignments={}, slotKey=""){
   if(!seed) return null;
@@ -2362,12 +2362,12 @@ function resolveSeed(seed, groupStandings, thirdAssignments={}, slotKey=""){
   let m=s.match(/^1\S*\s*Grupo ([A-L])$/);
   if(m){
     const g=m[1];
-    return hasAnyGroupResultLoaded(g) ? (groupStandings[g]?.[0]?.name||s) : s;
+    return areGroupResultsLoaded(g) ? (groupStandings[g]?.[0]?.name||s) : s;
   }
   m=s.match(/^2\S*\s*Grupo ([A-L])$/);
   if(m){
     const g=m[1];
-    return hasAnyGroupResultLoaded(g) ? (groupStandings[g]?.[1]?.name||s) : s;
+    return areGroupResultsLoaded(g) ? (groupStandings[g]?.[1]?.name||s) : s;
   }
   m=s.match(/^3\S*\s*([A-L](?:\/[A-L])*)$/);
   if(m){
