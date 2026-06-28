@@ -1857,6 +1857,10 @@ function getRawScore(matchId){
   return parseScore(state.results && state.results[matchId]);
 }
 
+function isKnockoutMatch(m){
+  return !!(m && m.phase && m.phase !== 'Fase de Grupos');
+}
+
 function getMatchKickoffDate(m){
   if(!m || !m.date || !m.time) return null;
   // Formato usado en el fixture: "Jue 11/06" + "16:00".
@@ -1918,7 +1922,7 @@ function getResultOutcome(matchId){
   const m=MATCH_MAP[matchId];
   // En fases eliminatorias no puede quedar empate: si el partido terminó igualado,
   // la administradora debe elegir quién ganó por penales.
-  if(m && m.group==='—' && r && (r.penaltyWinner==='home'||r.penaltyWinner==='away')) return r.penaltyWinner;
+  if(isKnockoutMatch(m) && r && (r.penaltyWinner==='home'||r.penaltyWinner==='away')) return r.penaltyWinner;
   return 'draw';
 }
 function calcPlayerStats(pid){
@@ -2419,8 +2423,8 @@ function getMatchWinnerLoser(matchId){
   const dm=getMatchDisplay(m);
   if(sc.h>sc.a) return {winner:dm.home,loser:dm.away};
   if(sc.a>sc.h) return {winner:dm.away,loser:dm.home};
-  if(m.group==='—' && r && r.penaltyWinner==='home') return {winner:dm.home,loser:dm.away};
-  if(m.group==='—' && r && r.penaltyWinner==='away') return {winner:dm.away,loser:dm.home};
+  if(isKnockoutMatch(m) && r && r.penaltyWinner==='home') return {winner:dm.home,loser:dm.away};
+  if(isKnockoutMatch(m) && r && r.penaltyWinner==='away') return {winner:dm.away,loser:dm.home};
   return {winner:null,loser:null};
 }
 function resolveKnockoutSeed(label){
@@ -2829,7 +2833,7 @@ async function predict(matchId,outcome){
   if(!match) return;
   const exacts=state.exactScores[currentPlayerId]||{};
   const card=document.getElementById('card-'+matchId);
-  if(card) card.outerHTML=buildMatchCard(match,state.predictions[currentPlayerId][matchId],exacts[matchId],match.group==='—');
+  if(card) card.outerHTML=buildMatchCard(match,state.predictions[currentPlayerId][matchId],exacts[matchId],isKnockoutMatch(match));
   await saveToCloud();
 }
 
@@ -2950,7 +2954,7 @@ function renderFixture(){
       const ht=getTeam(m.home),at=getTeam(m.away);
       html+=`<div class="fix-row${sc?' played':''}">
         <div class="fix-date">${m.date}<br><span style="color:var(--gold);font-size:9px">${m.time}hs</span></div>
-        <div class="fix-grp">${m.group==='—'?'':('GRP '+m.group)}</div>
+        <div class="fix-grp">${isKnockoutMatch(m)?'':('GRP '+m.group)}</div>
         <div class="fix-teams"><span class="fix-flag">${flagImg(ht)}</span><span>${escHtml(m.home)}</span><span style="color:var(--muted2)">vs</span><span>${escHtml(m.away)}</span><span class="fix-flag">${flagImg(at)}</span></div>
         <div class="fix-score">${sc?sc.h+' – '+sc.a:'—'}</div>
         <div class="fix-venue">${escHtml(m.venue)}</div>
@@ -3206,7 +3210,7 @@ function renderResultCards(){
 function buildResultCard(m){
   const r=state.results[m.id]||{home:'',away:''};
   const ht=getTeam(m.home),at=getTeam(m.away);
-  const isKO=m.group==='—';
+  const isKO=isKnockoutMatch(m);
   const showPen=isKO && String(r.home)!=='' && String(r.away)!=='' && String(r.home)===String(r.away);
   const penBox=isKO?`
       <div class="result-row" id="penrow-${m.id}" style="${showPen?'':'display:none'}">
@@ -3271,7 +3275,7 @@ async function saveResult(matchId){
   if(isNaN(h)||isNaN(a)||h<0||a<0){showToast('Marcadores inválidos','error');return;}
   const m=MATCH_MAP[matchId];
   const resultData={home:String(h),away:String(a),official:true};
-  if(m && m.group==='—' && h===a){
+  if(isKnockoutMatch(m) && h===a){
     const penEl=document.getElementById('pen-'+matchId);
     const penWinner=penEl ? penEl.value : '';
     if(penWinner!=='home' && penWinner!=='away'){
