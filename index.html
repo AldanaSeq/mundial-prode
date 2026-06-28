@@ -2333,7 +2333,6 @@ function getMatchDisplay(m){
     const resolved=getRound32ResolvedTeams()[m.id];
     return resolved?{...m,home:resolved.home,away:resolved.away}:m;
   }
-  clearInvalidKnockoutPhaseTeams();
   const override=state.phaseTeams&&state.phaseTeams[m.id];
   if(!override) return m;
   const home=isResolvedTeamName(override.home)?override.home:m.home;
@@ -2460,20 +2459,10 @@ function completeRound32Teams(){
 function refreshKnockoutTeamsFromResults(){
   state.phaseTeams=state.phaseTeams||{};
   completeRound32Teams();
-
-  if(canResolvePhase('Octavos de Final')) completeKnockoutTeams('round16');
-  else clearPhaseTeamsByPhase('Octavos de Final');
-
-  if(canResolvePhase('Cuartos de Final')) completeKnockoutTeams('quarterfinals');
-  else clearPhaseTeamsByPhase('Cuartos de Final');
-
-  if(canResolvePhase('Semifinales')) completeKnockoutTeams('semifinals');
-  else clearPhaseTeamsByPhase('Semifinales');
-
-  if(canResolvePhase('Final')) completeKnockoutTeams('final');
-  else { clearPhaseTeamsByPhase('Tercer Puesto'); clearPhaseTeamsByPhase('Final'); }
-
-  clearInvalidKnockoutPhaseTeams();
+  completeKnockoutTeams('round16');
+  completeKnockoutTeams('quarterfinals');
+  completeKnockoutTeams('semifinals');
+  completeKnockoutTeams('final');
   normalizeTournamentPhasePrerequisites();
 }
 function matchIdFromNumber(n){
