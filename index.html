@@ -2392,6 +2392,26 @@ function buildThirdSeedAssignments(){
   const qualifiedGroups=new Set(qualifiedThirds.map(t=>t.group));
   const teamByGroup={};
   qualifiedThirds.forEach(t=>{ teamByGroup[t.group]=t.name; });
+  const combo=[...qualifiedGroups].sort().join('');
+  const officialThirdMaps={
+    BDEFIJKL:{
+      'R32_2:away':'D',
+      'R32_5:away':'F',
+      'R32_7:away':'E',
+      'R32_8:away':'K',
+      'R32_9:away':'B',
+      'R32_10:away':'I',
+      'R32_13:away':'J',
+      'R32_15:away':'L'
+    }
+  };
+  if(officialThirdMaps[combo]){
+    const assigned={};
+    Object.entries(officialThirdMaps[combo]).forEach(([key,group])=>{
+      if(teamByGroup[group]) assigned[key]=teamByGroup[group];
+    });
+    return assigned;
+  }
   const slots=[];
   MATCHES.filter(m=>m.phase==='16avos de Final').forEach(m=>{
     [['home',m.home],['away',m.away]].forEach(([side,seed])=>{
