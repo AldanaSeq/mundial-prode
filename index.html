@@ -1679,8 +1679,8 @@ const MATCHES = [
   {id:'R32_14',group:'—',phase:'16avos de Final',jornada:0,date:'Vie 03/07',time:'19:00',home:'1º Grupo J',away:'2º Grupo H',venue:'Miami'},
   {id:'R32_15',group:'—',phase:'16avos de Final',jornada:0,date:'Vie 03/07',time:'22:30',home:'1º Grupo K',away:'3º D/E/I/J/L',venue:'Kansas City'},
   {id:'R32_16',group:'—',phase:'16avos de Final',jornada:0,date:'Vie 03/07',time:'15:00',home:'2º Grupo D',away:'2º Grupo G',venue:'Dallas'},
-  {id:'R16_1',group:'—',phase:'Octavos de Final',jornada:0,date:'Sáb 04/07',time:'18:00',home:'G. P74',away:'G. P77',venue:'Philadelphia'},
-  {id:'R16_2',group:'—',phase:'Octavos de Final',jornada:0,date:'Sáb 04/07',time:'14:00',home:'G. P73',away:'G. P75',venue:'Houston'},
+  {id:'R16_1',group:'—',phase:'Octavos de Final',jornada:0,date:'Sáb 04/07',time:'18:00',home:'G. P73',away:'G. P75',venue:'Philadelphia'},
+  {id:'R16_2',group:'—',phase:'Octavos de Final',jornada:0,date:'Sáb 04/07',time:'14:00',home:'G. P74',away:'G. P77',venue:'Houston'},
   {id:'R16_3',group:'—',phase:'Octavos de Final',jornada:0,date:'Dom 05/07',time:'17:00',home:'G. P76',away:'G. P78',venue:'Nueva Jersey'},
   {id:'R16_4',group:'—',phase:'Octavos de Final',jornada:0,date:'Dom 05/07',time:'21:00',home:'G. P79',away:'G. P80',venue:'Ciudad de México'},
   {id:'R16_5',group:'—',phase:'Octavos de Final',jornada:0,date:'Lun 06/07',time:'16:00',home:'G. P83',away:'G. P84',venue:'Dallas'},
@@ -2661,7 +2661,7 @@ function renderMarcaFinalRound(){
   </div>`;
 }
 function renderMarcaKnockoutBracket(){
-  const round32=['R32_2','R32_5','R32_1','R32_3','R32_11','R32_12','R32_9','R32_10','R32_4','R32_6','R32_7','R32_8','R32_14','R32_16','R32_13','R32_15'];
+  const round32=['R32_1','R32_3','R32_2','R32_5','R32_11','R32_12','R32_9','R32_10','R32_4','R32_6','R32_7','R32_8','R32_14','R32_16','R32_13','R32_15'];
   const round16=['R16_1','R16_2','R16_5','R16_6','R16_3','R16_4','R16_7','R16_8'];
   const quarters=['QF_1','QF_2','QF_3','QF_4'];
   const semis=['SF_1','SF_2'];
@@ -2680,7 +2680,7 @@ function renderMarcaKnockoutBracket(){
 }
 function getMarcaBracketLinks(){
   return [
-    [['R32_2','R32_5'],'R16_1'], [['R32_1','R32_3'],'R16_2'],
+    [['R32_1','R32_3'],'R16_1'], [['R32_2','R32_5'],'R16_2'],
     [['R32_11','R32_12'],'R16_5'], [['R32_9','R32_10'],'R16_6'],
     [['R16_1','R16_2'],'QF_1'], [['R16_5','R16_6'],'QF_2'],
     [['QF_1','QF_2'],'SF_1'], [['SF_1'],'FIN'],
